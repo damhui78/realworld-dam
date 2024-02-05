@@ -3,13 +3,14 @@ package com.lodny.realworlddam.service;
 import com.lodny.realworlddam.entity.RealWorldUser;
 import com.lodny.realworlddam.entity.dto.LoginUserResponse;
 import com.lodny.realworlddam.entity.dto.RegisterUserRequest;
-import com.lodny.realworlddam.entity.dto.RegisterUserResponse;
 import com.lodny.realworlddam.entity.dto.UpdateUserRequest;
 import com.lodny.realworlddam.repository.UserRepository;
 import com.lodny.realworlddam.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -18,8 +19,11 @@ public class UserService {
     private final JwtUtil jwtUtil;
 
     public LoginUserResponse loginUser(RegisterUserRequest registerUserRequest) throws Exception {
+        log.info("loginUser() : registerUserRequest = {}", registerUserRequest);
 
-        RealWorldUser realWorldUser = userRepository.loginUser(registerUserRequest);
+        RealWorldUser realWorldUser = userRepository.findByEmail(registerUserRequest.email());
+        if (! registerUserRequest.password().equals(realWorldUser.getPassword()))
+            throw new IllegalArgumentException("invalid username or password");
 
         String jwt = jwtUtil.createJwt(realWorldUser.getEmail());
 
@@ -32,24 +36,37 @@ public class UserService {
                 .build();
     }
 
-    public void registUser(RegisterUserRequest registerUserRequest) throws Exception {
+    public void registerUser(RegisterUserRequest registerUserRequest) throws Exception {
+        log.info("registerUser() : registerUserRequest = {}", registerUserRequest);
 
-        userRepository.save(registerUserRequest);
+        RealWorldUser realWorldUser = RealWorldUser.of(registerUserRequest);
+        userRepository.save(realWorldUser);
     }
 
-    public void updateUser(UpdateUserRequest updateUserRequest) throws Exception {
+    public LoginUserResponse updateUser(UpdateUserRequest updateUserRequest, final String auth) throws Exception {
+        log.info("updateUser() : updateUserRequest = {}", updateUserRequest);
 
-        userRepository.update(updateUserRequest);
+        RealWorldUser realWorldUser = getRealWorldUser(auth);
+
+        realWorldUser.update(updateUserRequest);
+        userRepository.update(realWorldUser);
+
+        return getLoginUserResponse(auth, realWorldUser);
     }
 
     public LoginUserResponse getUser(String auth) throws Exception {
 
+        RealWorldUser realWorldUser = getRealWorldUser(auth);
+        return getLoginUserResponse(auth, realWorldUser);
+    }
+
+    private RealWorldUser getRealWorldUser(final String auth) {
         String emailByJwt = jwtUtil.getEmailByJwt(auth);
+        return userRepository.findByEmail(emailByJwt);
+    }
 
-        RealWorldUser realWorldUser = userRepository.getUser(emailByJwt);
-
+    private LoginUserResponse getLoginUserResponse(final String auth, final RealWorldUser realWorldUser) {
         String jwt = auth.substring(jwtUtil.getAuthTitle().length());
-
         return LoginUserResponse.builder()
                 .email(realWorldUser.getEmail())
                 .token(jwt)
@@ -57,22 +74,5 @@ public class UserService {
                 .bio(realWorldUser.getBio())
                 .image(realWorldUser.getImage())
                 .build();
-    }
-
-    public RegisterUserResponse getUser(Long userSeq) throws Exception {
-
-        RealWorldUser realWorldUser = userRepository.getUser(userSeq);
-
-        if (realWorldUser == null) throw new IllegalArgumentException("not found");
-
-        return RegisterUserResponse.builder()
-                .username(realWorldUser.getUsername())
-                .email(realWorldUser.getEmail())
-                .build();
-    }
-
-    public void deleteUser(Long userSeq) throws Exception {
-
-        userRepository.deleteUser(userSeq);
     }
 }
