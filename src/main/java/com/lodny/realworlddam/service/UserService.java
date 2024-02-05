@@ -4,6 +4,7 @@ import com.lodny.realworlddam.entity.RealWorldUser;
 import com.lodny.realworlddam.entity.dto.LoginUserResponse;
 import com.lodny.realworlddam.entity.dto.RegisterUserRequest;
 import com.lodny.realworlddam.entity.dto.RegisterUserResponse;
+import com.lodny.realworlddam.entity.dto.UpdateUserRequest;
 import com.lodny.realworlddam.repository.UserRepository;
 import com.lodny.realworlddam.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,11 @@ public class UserService {
     public void registUser(RegisterUserRequest registerUserRequest) throws Exception {
 
         userRepository.save(registerUserRequest);
+    }
+
+    public void updateUser(UpdateUserRequest updateUserRequest) throws Exception {
+
+        userRepository.update(updateUserRequest);
     }
 
     public LoginUserResponse getUser(String auth) throws Exception {

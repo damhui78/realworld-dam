@@ -2,6 +2,7 @@ package com.lodny.realworlddam.repository;
 
 import com.lodny.realworlddam.entity.RealWorldUser;
 import com.lodny.realworlddam.entity.dto.RegisterUserRequest;
+import com.lodny.realworlddam.entity.dto.UpdateUserRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -26,6 +27,18 @@ public class UserRepository {
         realWorldUser.setPassword(registerUserRequest.password());
 
         users.put(++sequence, realWorldUser);
+    }
+
+    public void update(UpdateUserRequest updateUserRequest) throws Exception {
+        RealWorldUser realWorldUser = users.values().stream()
+                .filter(u -> u.getEmail().equals(updateUserRequest.email()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("not found"));
+
+        realWorldUser.setUsername(updateUserRequest.username());
+        realWorldUser.setPassword(updateUserRequest.password());
+        realWorldUser.setBio(updateUserRequest.bio());
+        realWorldUser.setImage(updateUserRequest.image());
     }
 
     public RealWorldUser getUser(String email) throws Exception {

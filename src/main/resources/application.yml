@@ -1,4 +1,4 @@
 jwt:
-  expiration_time: 5_000
+  expiration_time: 3_600_000
   secret_key: asdfasdfgasdahjmcvbxvbcvbxcvdfganxmcnfr6ukkgrvsd
   auth_title: Token
