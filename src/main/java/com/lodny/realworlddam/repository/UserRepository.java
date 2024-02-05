@@ -28,10 +28,10 @@ public class UserRepository {
         users.put(++sequence, realWorldUser);
     }
 
-    public RealWorldUser getUser(RegisterUserRequest registerUserRequest) throws Exception {
+    public RealWorldUser getUser(String email) throws Exception {
 
         return users.values().stream()
-                .filter(u -> u.getEmail().equals(registerUserRequest.email()) && u.getPassword().equals(registerUserRequest.email()))
+                .filter(u -> u.getEmail().equals(email))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("not found"));
     }

@@ -4,6 +4,7 @@ import com.lodny.realworlddam.entity.dto.RegisterUserRequestWrapper;
 import com.lodny.realworlddam.service.UserService;
 import com.lodny.realworlddam.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,9 +24,9 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> getUser(@RequestBody RegisterUserRequestWrapper registerUserRequestWrapper) throws Exception {
+    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String auth) throws Exception {
 
-        return ResponseEntity.ok(userService.getUser(registerUserRequestWrapper.user()));
+        return ResponseEntity.ok(userService.getUser(auth));
     }
 
     @GetMapping("/user/{userSeq}")
@@ -43,7 +44,7 @@ public class UserController {
 
     @DeleteMapping("/user")
     public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String auth, Long userSeq) throws Exception {
-        if (!"".equals(jwtUtil.getEmailByJwt(auth))) return ResponseEntity.ok("로그인 필요");
+        if (StringUtils.isBlank(jwtUtil.getEmailByJwt(auth))) return ResponseEntity.ok("로그인 필요");
 
 
         userService.deleteUser(userSeq);

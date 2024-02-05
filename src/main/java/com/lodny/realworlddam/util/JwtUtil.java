@@ -3,10 +3,10 @@ package com.lodny.realworlddam.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 
@@ -14,16 +14,17 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     @Value("${jwt.secret_key}")
-    private String SECRET_KEY;
+    private String secretKey;
     @Value("${jwt.expiration_time}")
-    private long EXPIRATION_TIME;
+    private Long expirationTime;
     @Value("${jwt.auth_title}")
-    private String AUTH_TITLE;
+    @Getter
+    private String authTitle;
 
     public String createJwt(String email) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + EXPIRATION_TIME);
-        Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        Date expiration = new Date(now.getTime() + expirationTime);
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
         return Jwts.builder()
                 .setSubject(email)
@@ -33,10 +34,10 @@ public class JwtUtil {
     }
 
     public String getSubjectByJwt(String jwt) {
-        SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
         return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(jwt)
                 .getBody()
@@ -44,11 +45,11 @@ public class JwtUtil {
     }
 
     public boolean isValidJwt(String jwt) {
-        SecretKey secretKey = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
         try {
             Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(jwt)
                     .getBody();
@@ -70,9 +71,9 @@ public class JwtUtil {
     }
 
     public String getEmailByJwt(String auth) {
-        if (auth == null || !auth.startsWith(AUTH_TITLE)) throw new IllegalArgumentException("auth not found");
+        if (auth == null || !auth.startsWith(authTitle)) throw new IllegalArgumentException("auth not found");
 
-        String jwt = auth.substring(AUTH_TITLE.length());
+        String jwt = auth.substring(authTitle.length());
 
         isValidJwt(jwt);
 

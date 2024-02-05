@@ -32,14 +32,17 @@ public class UserService {
     }
 
     public void registUser(RegisterUserRequest registerUserRequest) throws Exception {
+
         userRepository.save(registerUserRequest);
     }
 
-    public LoginUserResponse getUser(RegisterUserRequest registerUserRequest) throws Exception {
+    public LoginUserResponse getUser(String auth) throws Exception {
 
-        RealWorldUser realWorldUser = userRepository.getUser(registerUserRequest);
+        String emailByJwt = jwtUtil.getEmailByJwt(auth);
 
-        String jwt = jwtUtil.createJwt(realWorldUser.getEmail());
+        RealWorldUser realWorldUser = userRepository.getUser(emailByJwt);
+
+        String jwt = auth.substring(jwtUtil.getAuthTitle().length());
 
         return LoginUserResponse.builder()
                 .email(realWorldUser.getEmail())
