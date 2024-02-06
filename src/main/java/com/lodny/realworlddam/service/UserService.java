@@ -5,6 +5,7 @@ import com.lodny.realworlddam.entity.dto.LoginUserResponse;
 import com.lodny.realworlddam.entity.dto.RegisterUserRequest;
 import com.lodny.realworlddam.entity.dto.UpdateUserRequest;
 import com.lodny.realworlddam.repository.UserRepository;
+import com.lodny.realworlddam.util.JwtProperty;
 import com.lodny.realworlddam.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final JwtProperty jwtProperty;
 
     public LoginUserResponse loginUser(RegisterUserRequest registerUserRequest) throws Exception {
         log.info("loginUser() : registerUserRequest = {}", registerUserRequest);
@@ -66,7 +68,7 @@ public class UserService {
     }
 
     private LoginUserResponse getLoginUserResponse(final String auth, final RealWorldUser realWorldUser) {
-        String jwt = auth.substring(jwtUtil.getAuthTitle().length());
+        String jwt = auth.substring(jwtProperty.getAuthTitle().length());
         return LoginUserResponse.builder()
                 .email(realWorldUser.getEmail())
                 .token(jwt)

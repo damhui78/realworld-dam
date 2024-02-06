@@ -3,8 +3,7 @@ package com.lodny.realworlddam.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -12,19 +11,15 @@ import java.util.Date;
 
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
-    @Value("${jwt.secret_key}")
-    private String secretKey;
-    @Value("${jwt.expiration_time}")
-    private Long expirationTime;
-    @Value("${jwt.auth_title}")
-    @Getter
-    private String authTitle;
+
+    private final JwtProperty jwtProperty;
 
     public String createJwt(String email) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + expirationTime);
-        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        Date expiration = new Date(now.getTime() + jwtProperty.getExpirationTime());
+        Key key = Keys.hmacShaKeyFor(jwtProperty.getSecretKey().getBytes());
 
         return Jwts.builder()
                 .setSubject(email)
@@ -34,7 +29,7 @@ public class JwtUtil {
     }
 
     public String getSubjectByJwt(String jwt) {
-        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        Key key = Keys.hmacShaKeyFor(jwtProperty.getSecretKey().getBytes());
 
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -45,7 +40,7 @@ public class JwtUtil {
     }
 
     public boolean isValidJwt(String jwt) {
-        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        Key key = Keys.hmacShaKeyFor(jwtProperty.getSecretKey().getBytes());
 
         try {
             Claims claims = Jwts.parserBuilder()
@@ -71,6 +66,7 @@ public class JwtUtil {
     }
 
     public String getEmailByJwt(String auth) {
+        String authTitle = jwtProperty.getAuthTitle();
         if (auth == null || !auth.startsWith(authTitle)) throw new IllegalArgumentException("auth not found");
 
         String jwt = auth.substring(authTitle.length());
