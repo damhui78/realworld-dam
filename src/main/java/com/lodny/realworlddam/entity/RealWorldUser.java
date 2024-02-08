@@ -2,19 +2,23 @@ package com.lodny.realworlddam.entity;
 
 import com.lodny.realworlddam.entity.dto.RegisterUserRequest;
 import com.lodny.realworlddam.entity.dto.UpdateUserRequest;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.Optional;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class RealWorldUser {
-    @Setter
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String username;
+    @Column(unique = true)
     private String email;
     private String password;
 

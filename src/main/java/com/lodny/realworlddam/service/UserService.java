@@ -48,21 +48,22 @@ public class UserService {
     public LoginUserResponse updateUser(UpdateUserRequest updateUserRequest, final String auth) throws Exception {
         log.info("updateUser() : updateUserRequest = {}", updateUserRequest);
 
-        RealWorldUser realWorldUser = getRealWorldUser(auth);
+        RealWorldUser realWorldUser = getRealWorldUserByAuth(auth);
 
         realWorldUser.update(updateUserRequest);
-        userRepository.update(realWorldUser);
+        userRepository.save(realWorldUser);
+//        userRepository.update(realWorldUser);
 
         return getLoginUserResponse(auth, realWorldUser);
     }
 
     public LoginUserResponse getUser(String auth) throws Exception {
 
-        RealWorldUser realWorldUser = getRealWorldUser(auth);
+        RealWorldUser realWorldUser = getRealWorldUserByAuth(auth);
         return getLoginUserResponse(auth, realWorldUser);
     }
 
-    private RealWorldUser getRealWorldUser(final String auth) {
+    public RealWorldUser getRealWorldUserByAuth(final String auth) {
         String emailByJwt = jwtUtil.getEmailByJwt(auth);
         return userRepository.findByEmail(emailByJwt);
     }
@@ -77,4 +78,9 @@ public class UserService {
                 .image(realWorldUser.getImage())
                 .build();
     }
+
+    public RealWorldUser getRealWorldUserByUsername(final String username) {
+        return userRepository.findByUsername(username);
+    }
+
 }

@@ -3,15 +3,20 @@ package com.lodny.realworlddam.repository;
 import com.lodny.realworlddam.entity.RealWorldUser;
 import com.lodny.realworlddam.entity.dto.RegisterUserRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
-@Slf4j
 @Repository
-public class UserRepository {
+public interface UserRepository extends JpaRepository<RealWorldUser, Long> {
+    RealWorldUser findByEmail(String email);
+    RealWorldUser findByUsername(String username);
+
+
+    /*
     private Long sequence = 0L;
     private HashMap<Long, RealWorldUser> users = new HashMap<>();
 
@@ -57,4 +62,5 @@ public class UserRepository {
     public void deleteUser(Long userSeq) throws Exception {
         users.remove(userSeq);
     }
+    */
 }
