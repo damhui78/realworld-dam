@@ -4,7 +4,7 @@ import com.lodny.realworlddam.entity.Following;
 import com.lodny.realworlddam.entity.FollowingId;
 import com.lodny.realworlddam.entity.RealWorldUser;
 import com.lodny.realworlddam.entity.dto.ProfileResponse;
-import com.lodny.realworlddam.repository.ProfileRepository;
+import com.lodny.realworlddam.repository.FollowingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,52 +16,54 @@ import org.springframework.stereotype.Service;
 public class ProfileService {
 
     private final UserService userService;
-    private final ProfileRepository profileRepository;
+    private final FollowingRepository followingRepository;
 
 
     public ProfileResponse getProfile(String username, String auth) throws Exception {
-        RealWorldUser realWorldUser = userService.getRealWorldUserByUsername(username);
-        Boolean following = isFollowing(realWorldUser, auth);
+        RealWorldUser followee = userService.getRealWorldUserByUsername(username);
+        return getProfileResponse(followee, isFollowing(followee, auth));
+    }
+
+    public ProfileResponse follow(RealWorldUser followee, String auth) throws Exception {
+        log.info("follow() : followee = {}", followee);
+        log.info("follow() : auth = {}", auth);
+
+        RealWorldUser follower = userService.getRealWorldUserByAuth(auth);
+        followingRepository.save(Following.of(followee.getId(), follower.getId()));
+
+        return getProfileResponse(followee, true);
+    }
+
+    public ProfileResponse unfollow(RealWorldUser followee, String auth) throws Exception {
+        log.info("unfollow() : followee = {}", followee);
+        log.info("unfollow() : auth = {}", auth);
+
+        RealWorldUser follower = userService.getRealWorldUserByAuth(auth);
+        followingRepository.deleteById(new FollowingId(followee.getId(), follower.getId()));
+
+        return getProfileResponse(followee, false);
+    }
+
+
+
+    // -----------------------------------------------------------------------------------------------------------------
+    private Boolean isFollowing(final RealWorldUser user, final String auth) {
+        if (user == null) return false;
+        if (StringUtils.isBlank(auth)) return false;
+
+        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+        followingRepository.findById(new FollowingId(user.getId(), loginUser.getId()))
+                .orElseThrow(() -> new IllegalArgumentException("following not found"));
+
+        return true;
+    }
+
+    private ProfileResponse getProfileResponse(final RealWorldUser followee, final Boolean following) {
         return ProfileResponse.builder()
-                .username(realWorldUser.getUsername())
-                .bio(realWorldUser.getBio())
-                .image(realWorldUser.getImage())
+                .username(followee.getUsername())
+                .bio(followee.getBio())
+                .image(followee.getImage())
                 .following(following)
                 .build();
     }
-
-    private Boolean isFollowing(final RealWorldUser user, final String auth) {
-        if (StringUtils.isBlank(auth)) return false;
-
-        try {
-            RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
-            if (user == null) return false;
-
-            Following following = profileRepository.findById(new FollowingId(user.getId(), loginUser.getId()))
-                    .orElseThrow(() -> new IllegalArgumentException("following not found"));
-            return following != null;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public void saveFollowing(RealWorldUser realWorldUser, String auth) throws Exception {
-        log.info("saveFollowing() : realWorldUser = {}", realWorldUser);
-        log.info("saveFollowing() : auth = {}", auth);
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
-
-        profileRepository.save(Following.of(realWorldUser.getId(), loginUser.getId()));
-    }
-
-    public void deleteFollowing(RealWorldUser realWorldUser, String auth) throws Exception {
-        log.info("deleteFollowing() : realWorldUser = {}", realWorldUser);
-        log.info("deleteFollowing() : auth = {}", auth);
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
-
-        Following following = profileRepository.findById(new FollowingId(realWorldUser.getId(), loginUser.getId()))
-                        .orElseThrow(() -> new IllegalArgumentException("following not found"));
-        profileRepository.delete(following);
-    }
-
-
 }
