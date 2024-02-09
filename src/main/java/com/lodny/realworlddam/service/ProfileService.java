@@ -1,6 +1,7 @@
 package com.lodny.realworlddam.service;
 
 import com.lodny.realworlddam.entity.Following;
+import com.lodny.realworlddam.entity.FollowingId;
 import com.lodny.realworlddam.entity.RealWorldUser;
 import com.lodny.realworlddam.entity.dto.ProfileResponse;
 import com.lodny.realworlddam.repository.ProfileRepository;
@@ -36,7 +37,8 @@ public class ProfileService {
             RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
             if (user == null) return false;
 
-            Following following = profileRepository.findByFolloweeIdAndFollowerId(user.getId(), loginUser.getId());
+            Following following = profileRepository.findById(new FollowingId(user.getId(), loginUser.getId()))
+                    .orElseThrow(() -> new IllegalArgumentException("following not found"));
             return following != null;
         } catch (Exception e) {
             return false;
@@ -48,8 +50,7 @@ public class ProfileService {
         log.info("saveFollowing() : auth = {}", auth);
         RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
 
-        Following following = Following.of(realWorldUser.getId(), loginUser.getId());
-        profileRepository.save(following);
+        profileRepository.save(Following.of(realWorldUser.getId(), loginUser.getId()));
     }
 
     public void deleteFollowing(RealWorldUser realWorldUser, String auth) throws Exception {
@@ -57,7 +58,8 @@ public class ProfileService {
         log.info("deleteFollowing() : auth = {}", auth);
         RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
 
-        Following following = profileRepository.findByFolloweeIdAndFollowerId(realWorldUser.getId(), loginUser.getId());
+        Following following = profileRepository.findById(new FollowingId(realWorldUser.getId(), loginUser.getId()))
+                        .orElseThrow(() -> new IllegalArgumentException("following not found"));
         profileRepository.delete(following);
     }
 

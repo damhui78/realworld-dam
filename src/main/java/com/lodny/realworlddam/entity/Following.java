@@ -10,20 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 public class Following {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    private Long followeeId;
-    private Long followerId;
+    @EmbeddedId
+    private FollowingId followingId;
 
 
-    public static Following of(Long followeeId, Long followerId) {
-        return new Following(
-                0L,
-                followeeId,
-                followerId
-        );
+    public static Following of(final Long followeeId, final Long followerId) {
+        return new Following(new FollowingId(followeeId, followerId));
     }
 
 }
