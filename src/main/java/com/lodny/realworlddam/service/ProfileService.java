@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -19,12 +21,16 @@ public class ProfileService {
     private final FollowingRepository followingRepository;
 
 
-    public ProfileResponse getProfile(String username, String auth) throws Exception {
+    public ProfileResponse getProfile(String username) {
+        RealWorldUser followee = userService.getRealWorldUserByUsername(username);
+        return getProfileResponse(followee, false);
+    }
+    public ProfileResponse getProfile(String username, String auth) {
         RealWorldUser followee = userService.getRealWorldUserByUsername(username);
         return getProfileResponse(followee, isFollowing(followee, auth));
     }
 
-    public ProfileResponse follow(RealWorldUser followee, String auth) throws Exception {
+    public ProfileResponse follow(RealWorldUser followee, String auth) {
         log.info("follow() : followee = {}", followee);
         log.info("follow() : auth = {}", auth);
 
@@ -34,7 +40,7 @@ public class ProfileService {
         return getProfileResponse(followee, true);
     }
 
-    public ProfileResponse unfollow(RealWorldUser followee, String auth) throws Exception {
+    public ProfileResponse unfollow(RealWorldUser followee, String auth) {
         log.info("unfollow() : followee = {}", followee);
         log.info("unfollow() : auth = {}", auth);
 
@@ -52,10 +58,10 @@ public class ProfileService {
         if (StringUtils.isBlank(auth)) return false;
 
         RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
-        followingRepository.findById(new FollowingId(user.getId(), loginUser.getId()))
-                .orElseThrow(() -> new IllegalArgumentException("following not found"));
 
-        return true;
+        return followingRepository
+                .findById(new FollowingId(user.getId(), loginUser.getId()))
+                .isPresent();
     }
 
     private ProfileResponse getProfileResponse(final RealWorldUser followee, final Boolean following) {

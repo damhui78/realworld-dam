@@ -18,7 +18,7 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @GetMapping("/{username}")
-    public ResponseEntity<?> getProfile(@PathVariable String username, @RequestHeader(value = "Authorization", required = false) String auth) throws Exception {
+    public ResponseEntity<?> getProfile(@PathVariable String username, @RequestHeader(value = "Authorization", required = false) String auth) {
         log.info("getProfile() : username = {}", username);
         log.info("getProfile() : auth = {}", auth);
 
@@ -26,7 +26,7 @@ public class ProfileController {
     }
 
     @PostMapping("/{username}/follow")
-    public ResponseEntity<?> saveFollowing(@PathVariable String username, @RequestHeader(value = "Authorization") String auth) throws Exception {
+    public ResponseEntity<?> saveFollowing(@PathVariable String username, @RequestHeader(value = "Authorization") String auth) {
         log.info("saveFollowing() : username = {}", username);
         log.info("saveFollowing() : auth = {}", auth);
 
@@ -36,7 +36,7 @@ public class ProfileController {
     }
 
     @DeleteMapping("/{username}/follow")
-    public ResponseEntity<?> deleteFollowing(@PathVariable String username, @RequestHeader(value = "Authorization") String auth) throws Exception {
+    public ResponseEntity<?> deleteFollowing(@PathVariable String username, @RequestHeader(value = "Authorization") String auth) {
         log.info("deleteFollowing() : username = {}", username);
         log.info("deleteFollowing() : auth = {}", auth);
 

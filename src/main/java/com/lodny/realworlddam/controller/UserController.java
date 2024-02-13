@@ -17,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/users")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterUserRequestWrapper registerUserRequestWrapper) throws Exception {
+    public ResponseEntity<?> registerUser(@RequestBody RegisterUserRequestWrapper registerUserRequestWrapper) {
         RegisterUserRequest registerUserRequest = registerUserRequestWrapper.user();
         log.info("registerUser() : registerUserRequest = {}", registerUserRequest);
 
@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/users/login")
-    public ResponseEntity<?> loginUser(@RequestBody RegisterUserRequestWrapper registerUserRequestWrapper) throws Exception {
+    public ResponseEntity<?> loginUser(@RequestBody RegisterUserRequestWrapper registerUserRequestWrapper) {
         RegisterUserRequest registerUserRequest = registerUserRequestWrapper.user();
         log.info("loginUser() : registerUserRequest = {}", registerUserRequest);
 
@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @PutMapping("/user")
-    public ResponseEntity<?> updateUser(@RequestHeader("Authorization") String auth, @RequestBody UpdateUserRequestWrapper updateUserRequestWrapper) throws Exception {
+    public ResponseEntity<?> updateUser(@RequestHeader("Authorization") String auth, @RequestBody UpdateUserRequestWrapper updateUserRequestWrapper) {
         UpdateUserRequest updateUserRequest = updateUserRequestWrapper.user();
         log.info("updateUser() : updateUserRequest = {}", updateUserRequest);
 
@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String auth) throws Exception {
+    public ResponseEntity<?> getUser(@RequestHeader("Authorization") String auth) {
         log.info("getUser() : auth = {}", auth);
 
         return ResponseEntity.ok(userService.getUser(auth));

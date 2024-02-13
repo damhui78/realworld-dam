@@ -20,7 +20,7 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final JwtProperty jwtProperty;
 
-    public LoginUserResponse loginUser(RegisterUserRequest registerUserRequest) throws Exception {
+    public LoginUserResponse loginUser(RegisterUserRequest registerUserRequest) {
         log.info("loginUser() : registerUserRequest = {}", registerUserRequest);
 
         RealWorldUser realWorldUser = userRepository.findByEmail(registerUserRequest.email());
@@ -38,14 +38,14 @@ public class UserService {
                 .build();
     }
 
-    public void registerUser(RegisterUserRequest registerUserRequest) throws Exception {
+    public void registerUser(RegisterUserRequest registerUserRequest) {
         log.info("registerUser() : registerUserRequest = {}", registerUserRequest);
 
         RealWorldUser realWorldUser = RealWorldUser.of(registerUserRequest);
         userRepository.save(realWorldUser);
     }
 
-    public LoginUserResponse updateUser(UpdateUserRequest updateUserRequest, final String auth) throws Exception {
+    public LoginUserResponse updateUser(UpdateUserRequest updateUserRequest, final String auth) {
         log.info("updateUser() : updateUserRequest = {}", updateUserRequest);
 
         RealWorldUser realWorldUser = getRealWorldUserByAuth(auth);
@@ -57,10 +57,15 @@ public class UserService {
         return getLoginUserResponse(auth, realWorldUser);
     }
 
-    public LoginUserResponse getUser(String auth) throws Exception {
+    public LoginUserResponse getUser(String auth) {
 
         RealWorldUser realWorldUser = getRealWorldUserByAuth(auth);
         return getLoginUserResponse(auth, realWorldUser);
+    }
+    public RealWorldUser getUser(Long id) {
+
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("not found"));
     }
 
     public RealWorldUser getRealWorldUserByAuth(final String auth) {
