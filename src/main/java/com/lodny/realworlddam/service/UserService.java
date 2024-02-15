@@ -24,8 +24,8 @@ public class UserService {
         log.info("loginUser() : registerUserRequest = {}", registerUserRequest);
 
         RealWorldUser realWorldUser = userRepository.findByEmail(registerUserRequest.email());
-        if (! registerUserRequest.password().equals(realWorldUser.getPassword()))
-            throw new IllegalArgumentException("invalid username or password");
+        if (realWorldUser == null || !registerUserRequest.password().equals(realWorldUser.getPassword()))
+            throw new IllegalArgumentException("invalid email or password");
 
         String jwt = jwtUtil.createJwt(realWorldUser.getEmail());
 

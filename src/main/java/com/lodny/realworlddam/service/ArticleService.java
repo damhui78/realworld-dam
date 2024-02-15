@@ -2,7 +2,8 @@ package com.lodny.realworlddam.service;
 
 import com.lodny.realworlddam.entity.Article;
 import com.lodny.realworlddam.entity.RealWorldUser;
-import com.lodny.realworlddam.entity.dto.ArticleRequest;
+import com.lodny.realworlddam.entity.dto.UpdateArticleRequest;
+import com.lodny.realworlddam.entity.dto.CreateArticleRequest;
 import com.lodny.realworlddam.entity.dto.ArticleResponse;
 import com.lodny.realworlddam.entity.dto.ProfileResponse;
 import com.lodny.realworlddam.repository.ArticleRepository;
@@ -23,11 +24,27 @@ public class ArticleService {
     private final FavoriteRepository favoriteRepository;
 
 
-    public ArticleResponse createArticle(ArticleRequest articleRequest, String auth) {
+    public ArticleResponse createArticle(CreateArticleRequest createArticleRequest, String auth) {
 
         RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
         ProfileResponse authorProfile = profileService.getProfile(loginUser.getUsername(), auth);
-        Article article = articleRepository.save(Article.of(articleRequest, loginUser.getId()));
+        Article article = articleRepository.save(Article.of(createArticleRequest, loginUser.getId()));
+
+        return ArticleResponse.of(article, false, 0L, authorProfile);
+    }
+
+    public ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest,String slug, String auth) {
+
+        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+        Article originalArticle = articleRepository.findBySlug(slug);
+        if (originalArticle.getAuthorId() != loginUser.getId()) {
+            throw new IllegalArgumentException("ID Mismatch");
+        }
+        ProfileResponse authorProfile = profileService.getProfile(loginUser.getUsername(), auth);
+
+        originalArticle.update(updateArticleRequest);
+
+        Article article = articleRepository.save(originalArticle);
 
         return ArticleResponse.of(article, false, 0L, authorProfile);
     }

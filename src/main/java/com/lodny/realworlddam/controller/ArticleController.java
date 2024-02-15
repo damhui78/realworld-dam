@@ -1,8 +1,6 @@
 package com.lodny.realworlddam.controller;
 
-import com.lodny.realworlddam.entity.dto.ArticleRequest;
-import com.lodny.realworlddam.entity.dto.ArticleRequestWrapper;
-import com.lodny.realworlddam.entity.dto.ArticleResponse;
+import com.lodny.realworlddam.entity.dto.*;
 import com.lodny.realworlddam.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,15 +17,28 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @PostMapping
-    public ResponseEntity<?> createArticle(@RequestBody ArticleRequestWrapper articleRequestWrapper, @RequestHeader(value = "Authorization") String auth) {
-        ArticleRequest articleRequest = articleRequestWrapper.article();
-        log.info("createArticle() : articleRequest = {}", articleRequest);
+    public ResponseEntity<?> createArticle(@RequestBody CreateArticleRequestWrapper createArticleRequestWrapper, @RequestHeader(value = "Authorization") String auth) {
+        CreateArticleRequest createArticleRequest = createArticleRequestWrapper.article();
+        log.info("createArticle() : createArticleRequest = {}", createArticleRequest);
         log.info("createArticle() : auth = {}", auth);
 
-        ArticleResponse articleResponse = articleService.createArticle(articleRequest, auth);
+        ArticleResponse articleResponse = articleService.createArticle(createArticleRequest, auth);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(articleResponse);
+    }
+
+    @PutMapping("/{slug}")
+    public ResponseEntity<?> updateArticle(@RequestBody UpdateArticleRequestWrapper updateArticleRequestWrapper,
+                                           @PathVariable String slug,
+                                           @RequestHeader(value = "Authorization") String auth) {
+        UpdateArticleRequest updateArticleRequest = updateArticleRequestWrapper.article();
+        log.info("updateArticle() : updateArticleRequest = {}", updateArticleRequest);
+        log.info("updateArticle() : auth = {}", auth);
+
+        ArticleResponse articleResponse = articleService.updateArticle(updateArticleRequest, slug, auth);
+
+        return ResponseEntity.ok(articleResponse);
     }
 
     @GetMapping("/{slug}")
