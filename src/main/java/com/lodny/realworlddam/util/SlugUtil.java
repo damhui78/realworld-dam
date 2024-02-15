@@ -25,6 +25,10 @@ public class SlugUtil {
         // Remove unwanted characters
         slug = slug.replaceAll("[^a-z0-9\\-]", "");
 
+        // Append timestamp in nanoseconds
+        long timestampNano = System.nanoTime();
+        slug += "-" + timestampNano;
+
         return slug;
     }
 

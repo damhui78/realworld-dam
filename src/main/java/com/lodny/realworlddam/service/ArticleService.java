@@ -49,6 +49,15 @@ public class ArticleService {
         return ArticleResponse.of(article, false, 0L, authorProfile);
     }
 
+    public void deleteArticle(String slug, String auth) {
+        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+        Article article = articleRepository.findBySlug(slug);
+        if (article.getAuthorId() != loginUser.getId()) {
+            throw new IllegalArgumentException("ID Mismatch");
+        }
+        articleRepository.delete(article);
+    }
+
     public ArticleResponse getArticle(String slug, String auth) {
         ProfileResponse authorProfile;
         Article article = articleRepository.findBySlug(slug);

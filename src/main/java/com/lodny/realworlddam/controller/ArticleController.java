@@ -41,6 +41,11 @@ public class ArticleController {
         return ResponseEntity.ok(articleResponse);
     }
 
+    @DeleteMapping("/{slug}")
+    public void deleteArticle(@PathVariable String slug ,@RequestHeader(value = "Authorization") String auth) {
+        articleService.deleteArticle(slug, auth);
+    }
+
     @GetMapping("/{slug}")
     public ResponseEntity<?> getArticle(@PathVariable String slug, @RequestHeader(value = "Authorization", required = false) String auth) {
         log.info("getArticle() : slug = {}", slug);
