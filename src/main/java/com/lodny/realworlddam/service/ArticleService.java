@@ -6,6 +6,7 @@ import com.lodny.realworlddam.entity.dto.ArticleRequest;
 import com.lodny.realworlddam.entity.dto.ArticleResponse;
 import com.lodny.realworlddam.entity.dto.ProfileResponse;
 import com.lodny.realworlddam.repository.ArticleRepository;
+import com.lodny.realworlddam.repository.FavoriteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,7 @@ public class ArticleService {
     private final UserService userService;
     private final ProfileService profileService;
     private final ArticleRepository articleRepository;
+    private final FavoriteRepository favoriteRepository;
 
 
     public ArticleResponse createArticle(ArticleRequest articleRequest, String auth) {
@@ -34,15 +36,21 @@ public class ArticleService {
         ProfileResponse authorProfile;
         Article article = articleRepository.findBySlug(slug);
         RealWorldUser author = userService.getUser(article.getAuthorId());
+        long favoritesCount = favoriteRepository.countByFavoriteIdArticleId(article.getId());
 
         if (StringUtils.isBlank(auth)) {
             authorProfile = profileService.getProfile(author.getUsername());
-        } else {
-            authorProfile = profileService.getProfile(author.getUsername(), auth);
-
+            return ArticleResponse.of(article, false, favoritesCount, authorProfile);
         }
 
-        return ArticleResponse.of(article, false, 0L, authorProfile);
+
+        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+        authorProfile = profileService.getProfile(author.getUsername(), auth);
+
+        boolean favorited = favoriteRepository.findByFavoriteIdArticleIdAndFavoriteIdUserId(article.getId(), loginUser.getId())
+                    .isPresent();
+
+        return ArticleResponse.of(article, favorited, favoritesCount, authorProfile);
     }
 
 }
