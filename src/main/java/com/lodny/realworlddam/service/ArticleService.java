@@ -2,16 +2,16 @@ package com.lodny.realworlddam.service;
 
 import com.lodny.realworlddam.entity.Article;
 import com.lodny.realworlddam.entity.RealWorldUser;
-import com.lodny.realworlddam.entity.dto.UpdateArticleRequest;
-import com.lodny.realworlddam.entity.dto.CreateArticleRequest;
-import com.lodny.realworlddam.entity.dto.ArticleResponse;
-import com.lodny.realworlddam.entity.dto.ProfileResponse;
+import com.lodny.realworlddam.entity.dto.*;
 import com.lodny.realworlddam.repository.ArticleRepository;
 import com.lodny.realworlddam.repository.FavoriteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -77,6 +77,43 @@ public class ArticleService {
                     .isPresent();
 
         return ArticleResponse.of(article, favorited, favoritesCount, authorProfile);
+    }
+
+    public ArticlesResponse getArticles(SearchArticleRequest searchArticleRequest, String auth) {
+
+        List<ArticleResponse> articleList = new ArrayList<>();
+        List<Article> articles = new ArrayList<>();
+
+        if (StringUtils.isNotBlank(searchArticleRequest.tag())) {
+            articles = articleRepository.searchByTag(searchArticleRequest.tag());
+        } else if (StringUtils.isNotBlank(searchArticleRequest.author())) {
+            articles = articleRepository.searchByAuthor(searchArticleRequest.author());
+        } else if (StringUtils.isNotBlank(searchArticleRequest.favorited())) {
+            articles = articleRepository.searchByFavorited(searchArticleRequest.favorited());
+        } else {
+            throw new IllegalArgumentException("search term not found");
+        }
+
+        for (Article article : articles) {
+            ProfileResponse authorProfile;
+            RealWorldUser author = userService.getUser(article.getAuthorId());
+            long favoritesCount = favoriteRepository.countByFavoriteIdArticleId(article.getId());
+
+            if (StringUtils.isBlank(auth)) {
+                authorProfile = profileService.getProfile(author.getUsername());
+                articleList.add(ArticleResponse.of(article, false, favoritesCount, authorProfile));
+                continue;
+            }
+
+            RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+            authorProfile = profileService.getProfile(author.getUsername(), auth);
+            boolean favorited = favoriteRepository.findByFavoriteIdArticleIdAndFavoriteIdUserId(article.getId(), loginUser.getId())
+                    .isPresent();
+
+            articleList.add(ArticleResponse.of(article, favorited, favoritesCount, authorProfile));
+        }
+
+        return new ArticlesResponse(articleList, articleList.size());
     }
 
 }

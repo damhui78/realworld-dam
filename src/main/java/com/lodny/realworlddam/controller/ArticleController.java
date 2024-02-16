@@ -54,4 +54,11 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.getArticle(slug, auth));
     }
 
+    @GetMapping
+    public ResponseEntity<?> getArticles(SearchArticleRequest searchArticleRequest, @RequestHeader(value = "Authorization", required = false) String auth) {
+        log.info("getArticles() : searchArticleRequest = {}", searchArticleRequest);
+
+        return ResponseEntity.ok(articleService.getArticles(searchArticleRequest, auth));
+    }
+
 }
