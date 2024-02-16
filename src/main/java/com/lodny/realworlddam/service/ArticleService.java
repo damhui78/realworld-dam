@@ -8,6 +8,8 @@ import com.lodny.realworlddam.repository.FavoriteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -82,14 +84,18 @@ public class ArticleService {
     public ArticlesResponse getArticles(SearchArticleRequest searchArticleRequest, String auth) {
 
         List<ArticleResponse> articleList = new ArrayList<>();
-        List<Article> articles = new ArrayList<>();
+        Page<Article> articles;
+
+        int page = searchArticleRequest.offset() / searchArticleRequest.limit();
+        log.info("getArticles() : page = {}", page);
+        PageRequest pageRequest = PageRequest.of(page, searchArticleRequest.limit());
 
         if (StringUtils.isNotBlank(searchArticleRequest.tag())) {
-            articles = articleRepository.searchByTag(searchArticleRequest.tag());
+            articles = articleRepository.searchByTag(searchArticleRequest.tag(), pageRequest);
         } else if (StringUtils.isNotBlank(searchArticleRequest.author())) {
-            articles = articleRepository.searchByAuthor(searchArticleRequest.author());
+            articles = articleRepository.searchByAuthor(searchArticleRequest.author(), pageRequest);
         } else if (StringUtils.isNotBlank(searchArticleRequest.favorited())) {
-            articles = articleRepository.searchByFavorited(searchArticleRequest.favorited());
+            articles = articleRepository.searchByFavorited(searchArticleRequest.favorited(), pageRequest);
         } else {
             throw new IllegalArgumentException("search term not found");
         }
