@@ -1,6 +1,11 @@
 package com.lodny.realworlddam.controller;
 
-import com.lodny.realworlddam.entity.dto.*;
+import com.lodny.realworlddam.entity.dto.LoginUserResponse;
+import com.lodny.realworlddam.entity.dto.RegisterUserRequest;
+import com.lodny.realworlddam.entity.dto.UpdateUserRequest;
+import com.lodny.realworlddam.entity.wrapper.LoginUserResponseWrapper;
+import com.lodny.realworlddam.entity.wrapper.RegisterUserRequestWrapper;
+import com.lodny.realworlddam.entity.wrapper.UpdateUserRequestWrapper;
 import com.lodny.realworlddam.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +30,7 @@ public class UserController {
 
         LoginUserResponse loginUserResponse = userService.loginUser(registerUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(loginUserResponse);
+                .body(new LoginUserResponseWrapper(loginUserResponse));
     }
 
     @PostMapping("/users/login")
@@ -33,7 +38,7 @@ public class UserController {
         RegisterUserRequest registerUserRequest = registerUserRequestWrapper.user();
         log.info("loginUser() : registerUserRequest = {}", registerUserRequest);
 
-        return ResponseEntity.ok(userService.loginUser(registerUserRequest));
+        return ResponseEntity.ok(new LoginUserResponseWrapper(userService.loginUser(registerUserRequest)));
     }
 
     @PutMapping("/user")
@@ -41,14 +46,14 @@ public class UserController {
         UpdateUserRequest updateUserRequest = updateUserRequestWrapper.user();
         log.info("updateUser() : updateUserRequest = {}", updateUserRequest);
 
-        return ResponseEntity.ok(userService.updateUser(updateUserRequest, auth));
+        return ResponseEntity.ok(new LoginUserResponseWrapper(userService.updateUser(updateUserRequest, auth)));
     }
 
     @GetMapping("/user")
     public ResponseEntity<?> getUser(@RequestHeader("Authorization") String auth) {
         log.info("getUser() : auth = {}", auth);
 
-        return ResponseEntity.ok(userService.getUser(auth));
+        return ResponseEntity.ok(new LoginUserResponseWrapper(userService.getUser(auth)));
     }
 
 }

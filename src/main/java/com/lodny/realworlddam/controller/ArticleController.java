@@ -1,6 +1,9 @@
 package com.lodny.realworlddam.controller;
 
 import com.lodny.realworlddam.entity.dto.*;
+import com.lodny.realworlddam.entity.wrapper.ArticleResponseWrapper;
+import com.lodny.realworlddam.entity.wrapper.CreateArticleRequestWrapper;
+import com.lodny.realworlddam.entity.wrapper.UpdateArticleRequestWrapper;
 import com.lodny.realworlddam.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +28,7 @@ public class ArticleController {
         ArticleResponse articleResponse = articleService.createArticle(createArticleRequest, auth);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(articleResponse);
+                .body(new ArticleResponseWrapper(articleResponse));
     }
 
     @PutMapping("/{slug}")
@@ -38,7 +41,7 @@ public class ArticleController {
 
         ArticleResponse articleResponse = articleService.updateArticle(updateArticleRequest, slug, auth);
 
-        return ResponseEntity.ok(articleResponse);
+        return ResponseEntity.ok(new ArticleResponseWrapper(articleResponse));
     }
 
     @DeleteMapping("/{slug}")
@@ -51,7 +54,7 @@ public class ArticleController {
         log.info("getArticle() : slug = {}", slug);
         log.info("getArticle() : auth = {}", auth);
 
-        return ResponseEntity.ok(articleService.getArticle(slug, auth));
+        return ResponseEntity.ok(new ArticleResponseWrapper(articleService.getArticle(slug, auth)));
     }
 
     @GetMapping

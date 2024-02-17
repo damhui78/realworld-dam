@@ -1,6 +1,7 @@
 package com.lodny.realworlddam.controller;
 
 import com.lodny.realworlddam.entity.RealWorldUser;
+import com.lodny.realworlddam.entity.wrapper.ProfileResponseWrapper;
 import com.lodny.realworlddam.service.ProfileService;
 import com.lodny.realworlddam.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class ProfileController {
         log.info("getProfile() : username = {}", username);
         log.info("getProfile() : auth = {}", auth);
 
-        return ResponseEntity.ok(profileService.getProfile(username, auth));
+        return ResponseEntity.ok(new ProfileResponseWrapper(profileService.getProfile(username, auth)));
     }
 
     @PostMapping("/{username}/follow")
@@ -32,7 +33,7 @@ public class ProfileController {
 
         RealWorldUser followee = userService.getRealWorldUserByUsername(username);
 
-        return ResponseEntity.ok(profileService.follow(followee, auth));
+        return ResponseEntity.ok(new ProfileResponseWrapper(profileService.follow(followee, auth)));
     }
 
     @DeleteMapping("/{username}/follow")
@@ -42,7 +43,7 @@ public class ProfileController {
 
         RealWorldUser followee = userService.getRealWorldUserByUsername(username);
 
-        return ResponseEntity.ok(profileService.unfollow(followee, auth));
+        return ResponseEntity.ok(new ProfileResponseWrapper(profileService.unfollow(followee, auth)));
     }
 
 }

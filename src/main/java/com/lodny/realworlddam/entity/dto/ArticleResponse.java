@@ -1,6 +1,5 @@
 package com.lodny.realworlddam.entity.dto;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
 import com.lodny.realworlddam.entity.Article;
 import lombok.Builder;
 
@@ -8,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Builder
-@JsonRootName("article")
 public record ArticleResponse(
         String slug,
         String title,
