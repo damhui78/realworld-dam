@@ -97,44 +97,38 @@ public class ArticleService {
     }
 
     public ArticlesResponse getArticles(SearchArticleRequest searchArticleRequest, String auth) {
+        Long loginUserId = -1L;
+        if (StringUtils.isNotBlank(auth)) {
+            RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+            loginUserId = loginUser.getId();
+        }
+        log.info("getArticles() : loginUserId = {}", loginUserId);
 
-        List<ArticleResponse> articleList = new ArrayList<>();
-        Page<Article> articles;
+        List<ArticleResponse> list = new ArrayList<>();
+        Page<Object[]> articles;
 
         int page = searchArticleRequest.offset() / searchArticleRequest.limit();
         log.info("getArticles() : page = {}", page);
         PageRequest pageRequest = PageRequest.of(page, searchArticleRequest.limit());
 
         if (StringUtils.isNotBlank(searchArticleRequest.tag())) {
-            articles = articleRepository.searchByTag(searchArticleRequest.tag(), pageRequest);
+            articles = articleRepository.searchByTag(searchArticleRequest.tag(), loginUserId, pageRequest);
         } else if (StringUtils.isNotBlank(searchArticleRequest.author())) {
-            articles = articleRepository.searchByAuthor(searchArticleRequest.author(), pageRequest);
+            articles = articleRepository.searchByAuthor(searchArticleRequest.author(), loginUserId, pageRequest);
         } else if (StringUtils.isNotBlank(searchArticleRequest.favorited())) {
-            articles = articleRepository.searchByFavorited(searchArticleRequest.favorited(), pageRequest);
+            articles = articleRepository.searchByFavorited(searchArticleRequest.favorited(), loginUserId, pageRequest);
         } else {
             throw new IllegalArgumentException("search term not found");
         }
+        log.info("getArticles() : articles = {}", articles);
 
-        for (Article article : articles) {
-            ProfileResponse authorProfile;
-            RealWorldUser author = userService.getUser(article.getAuthorId());
-            long favoritesCount = favoriteRepository.countByFavoriteIdArticleId(article.getId());
-
-            if (StringUtils.isBlank(auth)) {
-                authorProfile = profileService.getProfile(author.getUsername());
-                articleList.add(ArticleResponse.of(article, false, favoritesCount, authorProfile));
-                continue;
-            }
-
-            RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
-            authorProfile = profileService.getProfile(author.getUsername(), auth);
-            boolean favorited = favoriteRepository.findByFavoriteIdArticleIdAndFavoriteIdUserId(article.getId(), loginUser.getId())
-                    .isPresent();
-
-            articleList.add(ArticleResponse.of(article, favorited, favoritesCount, authorProfile));
+        for (Object[] queryResult : articles) {
+            log.info("getArticles() : queryResult = {}", queryResult);
+            log.info("getArticles() : queryResult.size() = {}", queryResult.length);
+            list.add(getArticleResponse(queryResult));
         }
 
-        return new ArticlesResponse(articleList, articleList.size());
+        return new ArticlesResponse(list, list.size());
     }
 
     public ArticlesResponse getFeedArticles(SearchArticleRequest searchArticleRequest, String auth) {
@@ -150,14 +144,15 @@ public class ArticleService {
 
         if (StringUtils.isNotBlank(searchArticleRequest.tag())) {
             articles = articleRepository.feedByTag(searchArticleRequest.tag(), loginUser.getId(), pageRequest);
-            for (Object[] queryResult : articles) {
-                log.info("getArticle() : queryResult = {}", queryResult);
-                log.info("getArticle() : queryResult.size() = {}", queryResult.length);
-                list.add(getArticleResponse(queryResult));
-            }
-            log.info("getFeedArticles() : articles = {}", articles);
         } else {
             throw new IllegalArgumentException("search term not found");
+        }
+        log.info("getFeedArticles() : articles = {}", articles);
+
+        for (Object[] queryResult : articles) {
+            log.info("getArticle() : queryResult = {}", queryResult);
+            log.info("getArticle() : queryResult.size() = {}", queryResult.length);
+            list.add(getArticleResponse(queryResult));
         }
 
         return new ArticlesResponse(list, list.size());
@@ -167,25 +162,18 @@ public class ArticleService {
 
     // -----------------------------------------------------------------------------------------------------------------
     private ArticleResponse getArticleResponse(final Object[] queryResult) {
-        boolean bFollowing = false;
-        boolean bFavorited = false;
-
         if (queryResult.length < 5) {
             throw new IllegalArgumentException("check query");
         }
 
-        Article article = (Article) queryResult[0];
-        RealWorldUser author = (RealWorldUser) queryResult[1];
         Following following = (Following) queryResult[2];
         Favorite favorite = (Favorite) queryResult[3];
-        Long favoritesCount = (Long) queryResult[4];
 
-        if (following != null) bFollowing = true;
-        if (favorite != null) bFavorited = true;
-
-        ProfileResponse profileResponse = new ProfileResponse(author.getUsername(), author.getBio(), author.getImage(), bFollowing);
-
-        return ArticleResponse.of(article, bFavorited, favoritesCount, profileResponse);
+        return ArticleResponse.of(
+                (Article)queryResult[0],
+                favorite != null,
+                (Long)queryResult[4],
+                ProfileResponse.of((RealWorldUser) queryResult[1], following != null));
     }
 
 }
