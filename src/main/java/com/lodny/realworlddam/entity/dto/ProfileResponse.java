@@ -1,7 +1,9 @@
 package com.lodny.realworlddam.entity.dto;
 
-import lombok.Builder;
+import com.lodny.realworlddam.entity.RealWorldUser;
 
-@Builder
 public record ProfileResponse(String username, String bio, String image, Boolean following) {
+    public static ProfileResponse of(RealWorldUser user, Boolean following) {
+        return new ProfileResponse(user.getUsername(), user.getBio(), user.getImage(), following);
+    }
 }

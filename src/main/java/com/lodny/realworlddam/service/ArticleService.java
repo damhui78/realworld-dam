@@ -1,6 +1,8 @@
 package com.lodny.realworlddam.service;
 
 import com.lodny.realworlddam.entity.Article;
+import com.lodny.realworlddam.entity.Favorite;
+import com.lodny.realworlddam.entity.Following;
 import com.lodny.realworlddam.entity.RealWorldUser;
 import com.lodny.realworlddam.entity.dto.*;
 import com.lodny.realworlddam.repository.ArticleRepository;
@@ -60,25 +62,38 @@ public class ArticleService {
         articleRepository.delete(article);
     }
 
+//    public ArticleResponse getArticle__x(String slug, String auth) {
+//        ProfileResponse authorProfile;
+//        Article article = articleRepository.findBySlug(slug);
+//        RealWorldUser author = userService.getUser(article.getAuthorId());
+//        long favoritesCount = favoriteRepository.countByFavoriteIdArticleId(article.getId());
+//
+//        if (StringUtils.isBlank(auth)) {
+//            authorProfile = profileService.getProfile(author.getUsername());
+//            return ArticleResponse.of(article, false, favoritesCount, authorProfile);
+//        }
+//
+//
+//        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+//        authorProfile = profileService.getProfile(author.getUsername(), auth);
+//
+//        boolean favorited = favoriteRepository.findByFavoriteIdArticleIdAndFavoriteIdUserId(article.getId(), loginUser.getId())
+//                    .isPresent();
+//
+//        return ArticleResponse.of(article, favorited, favoritesCount, authorProfile);
+//    }
     public ArticleResponse getArticle(String slug, String auth) {
-        ProfileResponse authorProfile;
-        Article article = articleRepository.findBySlug(slug);
-        RealWorldUser author = userService.getUser(article.getAuthorId());
-        long favoritesCount = favoriteRepository.countByFavoriteIdArticleId(article.getId());
+        Long loginUserId = -1L;
 
-        if (StringUtils.isBlank(auth)) {
-            authorProfile = profileService.getProfile(author.getUsername());
-            return ArticleResponse.of(article, false, favoritesCount, authorProfile);
+        if (StringUtils.isNotBlank(auth)) {
+            RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+            loginUserId = loginUser.getId();
         }
 
-
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
-        authorProfile = profileService.getProfile(author.getUsername(), auth);
-
-        boolean favorited = favoriteRepository.findByFavoriteIdArticleIdAndFavoriteIdUserId(article.getId(), loginUser.getId())
-                    .isPresent();
-
-        return ArticleResponse.of(article, favorited, favoritesCount, authorProfile);
+        Object[] queryResult = (Object[])articleRepository.searchBySlug(slug, loginUserId);
+        log.info("getArticle() : queryResult = {}", queryResult);
+        log.info("getArticle() : queryResult.size() = {}", queryResult.length);
+        return getArticleResponse(queryResult);
     }
 
     public ArticlesResponse getArticles(SearchArticleRequest searchArticleRequest, String auth) {
@@ -120,6 +135,57 @@ public class ArticleService {
         }
 
         return new ArticlesResponse(articleList, articleList.size());
+    }
+
+    public ArticlesResponse getFeedArticles(SearchArticleRequest searchArticleRequest, String auth) {
+        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+        log.info("getFeedArticles() : loginUserId = {}", loginUser.getId());
+
+        List<ArticleResponse> list = new ArrayList<>();
+        Page<Object[]> articles;
+
+        int page = searchArticleRequest.offset() / searchArticleRequest.limit();
+        log.info("getFeedArticles() : page = {}", page);
+        PageRequest pageRequest = PageRequest.of(page, searchArticleRequest.limit());
+
+        if (StringUtils.isNotBlank(searchArticleRequest.tag())) {
+            articles = articleRepository.feedByTag(searchArticleRequest.tag(), loginUser.getId(), pageRequest);
+            for (Object[] queryResult : articles) {
+                log.info("getArticle() : queryResult = {}", queryResult);
+                log.info("getArticle() : queryResult.size() = {}", queryResult.length);
+                list.add(getArticleResponse(queryResult));
+            }
+            log.info("getFeedArticles() : articles = {}", articles);
+        } else {
+            throw new IllegalArgumentException("search term not found");
+        }
+
+        return new ArticlesResponse(list, list.size());
+    }
+
+
+
+    // -----------------------------------------------------------------------------------------------------------------
+    private ArticleResponse getArticleResponse(final Object[] queryResult) {
+        boolean bFollowing = false;
+        boolean bFavorited = false;
+
+        if (queryResult.length < 5) {
+            throw new IllegalArgumentException("check query");
+        }
+
+        Article article = (Article) queryResult[0];
+        RealWorldUser author = (RealWorldUser) queryResult[1];
+        Following following = (Following) queryResult[2];
+        Favorite favorite = (Favorite) queryResult[3];
+        Long favoritesCount = (Long) queryResult[4];
+
+        if (following != null) bFollowing = true;
+        if (favorite != null) bFavorited = true;
+
+        ProfileResponse profileResponse = new ProfileResponse(author.getUsername(), author.getBio(), author.getImage(), bFollowing);
+
+        return ArticleResponse.of(article, bFavorited, favoritesCount, profileResponse);
     }
 
 }

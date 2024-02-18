@@ -10,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -65,11 +63,7 @@ public class ProfileService {
     }
 
     private ProfileResponse getProfileResponse(final RealWorldUser followee, final Boolean following) {
-        return ProfileResponse.builder()
-                .username(followee.getUsername())
-                .bio(followee.getBio())
-                .image(followee.getImage())
-                .following(following)
-                .build();
+        return ProfileResponse.of(followee, following);
     }
+
 }

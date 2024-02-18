@@ -64,4 +64,11 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.getArticles(searchArticleRequest, auth));
     }
 
+    @GetMapping("/feed")
+    public ResponseEntity<?> getFeed(SearchArticleRequest searchArticleRequest, @RequestHeader(value = "Authorization") String auth) {
+        log.info("getFeed() : searchArticleRequest = {}", searchArticleRequest);
+
+        return ResponseEntity.ok(articleService.getFeedArticles(searchArticleRequest, auth));
+    }
+
 }

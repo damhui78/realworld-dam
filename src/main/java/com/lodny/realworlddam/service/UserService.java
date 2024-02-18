@@ -29,13 +29,7 @@ public class UserService {
 
         String jwt = jwtUtil.createJwt(realWorldUser.getEmail());
 
-        return LoginUserResponse.builder()
-                .email(realWorldUser.getEmail())
-                .token(jwt)
-                .username(realWorldUser.getUsername())
-                .bio(realWorldUser.getBio())
-                .image(realWorldUser.getImage())
-                .build();
+        return LoginUserResponse.of(realWorldUser, jwt);
     }
 
     public void registerUser(RegisterUserRequest registerUserRequest) {
@@ -73,19 +67,16 @@ public class UserService {
         return userRepository.findByEmail(emailByJwt);
     }
 
-    private LoginUserResponse getLoginUserResponse(final String auth, final RealWorldUser realWorldUser) {
-        String jwt = auth.substring(jwtProperty.getAuthTitle().length());
-        return LoginUserResponse.builder()
-                .email(realWorldUser.getEmail())
-                .token(jwt)
-                .username(realWorldUser.getUsername())
-                .bio(realWorldUser.getBio())
-                .image(realWorldUser.getImage())
-                .build();
-    }
-
     public RealWorldUser getRealWorldUserByUsername(final String username) {
         return userRepository.findByUsername(username);
+    }
+
+
+
+    // -----------------------------------------------------------------------------------------------------------------
+    private LoginUserResponse getLoginUserResponse(final String auth, final RealWorldUser realWorldUser) {
+        String jwt = auth.substring(jwtProperty.getAuthTitle().length());
+        return LoginUserResponse.of(realWorldUser, jwt);
     }
 
 }
