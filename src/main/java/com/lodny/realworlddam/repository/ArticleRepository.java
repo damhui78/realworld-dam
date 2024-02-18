@@ -68,9 +68,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
         join RealWorldUser u on u.id = a.authorId
         join Following f on f.followingId.followeeId = a.authorId and f.followingId.followerId = :loginId
         left join Favorite l on l.favoriteId.articleId = a.id and l.favoriteId.userId = :loginId
-        where :tag in elements(a.tagList)
         order by a.createdAt desc
     """)
-    Page<Object[]> feedByTag(String tag, Long loginId, Pageable pageable);
+    Page<Object[]> getFeed(Long loginId, Pageable pageable);
 
 }

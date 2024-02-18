@@ -136,17 +136,12 @@ public class ArticleService {
         log.info("getFeedArticles() : loginUserId = {}", loginUser.getId());
 
         List<ArticleResponse> list = new ArrayList<>();
-        Page<Object[]> articles;
 
         int page = searchArticleRequest.offset() / searchArticleRequest.limit();
         log.info("getFeedArticles() : page = {}", page);
         PageRequest pageRequest = PageRequest.of(page, searchArticleRequest.limit());
 
-        if (StringUtils.isNotBlank(searchArticleRequest.tag())) {
-            articles = articleRepository.feedByTag(searchArticleRequest.tag(), loginUser.getId(), pageRequest);
-        } else {
-            throw new IllegalArgumentException("search term not found");
-        }
+        Page<Object[]> articles = articleRepository.getFeed(loginUser.getId(), pageRequest);
         log.info("getFeedArticles() : articles = {}", articles);
 
         for (Object[] queryResult : articles) {
