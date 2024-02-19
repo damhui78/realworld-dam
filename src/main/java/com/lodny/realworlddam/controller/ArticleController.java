@@ -71,4 +71,23 @@ public class ArticleController {
         return ResponseEntity.ok(articleService.getFeedArticles(searchArticleRequest, auth));
     }
 
+    @PostMapping("/{slug}/favorite")
+    public ResponseEntity<?> createFavorite(@PathVariable String slug, @RequestHeader(value = "Authorization") String auth) {
+        log.info("createFavorite() : slug = {}", slug);
+
+        ArticleResponse articleResponse = articleService.createFavorite(slug, auth);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ArticleResponseWrapper(articleResponse));
+    }
+
+    @DeleteMapping("/{slug}/favorite")
+    public ResponseEntity<?> deleteFavorite(@PathVariable String slug, @RequestHeader(value = "Authorization") String auth) {
+        log.info("deleteFavorite() : slug = {}", slug);
+
+        ArticleResponse articleResponse = articleService.deleteFavorite(slug, auth);
+
+        return ResponseEntity.ok(new ArticleResponseWrapper(articleResponse));
+    }
+
 }

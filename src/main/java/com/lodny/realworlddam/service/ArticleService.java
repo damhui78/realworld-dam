@@ -92,7 +92,7 @@ public class ArticleService {
 
         Object[] queryResult = (Object[])articleRepository.searchBySlug(slug, loginUserId);
         log.info("getArticle() : queryResult = {}", queryResult);
-        log.info("getArticle() : queryResult.size() = {}", queryResult.length);
+        log.info("getArticle() : queryResult.length = {}", queryResult.length);
         return getArticleResponse(queryResult);
     }
 
@@ -124,7 +124,7 @@ public class ArticleService {
 
         for (Object[] queryResult : articles) {
             log.info("getArticles() : queryResult = {}", queryResult);
-            log.info("getArticles() : queryResult.size() = {}", queryResult.length);
+            log.info("getArticles() : queryResult.length = {}", queryResult.length);
             list.add(getArticleResponse(queryResult));
         }
 
@@ -146,11 +146,44 @@ public class ArticleService {
 
         for (Object[] queryResult : articles) {
             log.info("getArticle() : queryResult = {}", queryResult);
-            log.info("getArticle() : queryResult.size() = {}", queryResult.length);
+            log.info("getArticle() : queryResult.length = {}", queryResult.length);
             list.add(getArticleResponse(queryResult));
         }
 
         return new ArticlesResponse(list, list.size());
+    }
+
+    public ArticleResponse createFavorite(String slug, String auth) {
+
+        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+        Object[] searchBySlug = (Object[]) articleRepository.searchBySlug(slug, loginUser.getId());
+        Favorite favorite = (Favorite) searchBySlug[3];
+        log.info("createFavorite() : favorite = {}", favorite);
+
+        if (favorite != null) return getArticleResponse(searchBySlug);
+
+        Article article = (Article) searchBySlug[0];
+        favoriteRepository.save(Favorite.of(article.getId(), loginUser.getId()));
+
+        Object[] queryResult = (Object[]) articleRepository.searchBySlug(slug, loginUser.getId());
+        log.info("createFavorite() : queryResult = {}", queryResult);
+        log.info("createFavorite() : queryResult.length = {}", queryResult.length);
+
+        return getArticleResponse(queryResult);
+    }
+
+    public ArticleResponse deleteFavorite(String slug, String auth) {
+
+        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+        Article article = articleRepository.findBySlug(slug);
+
+        favoriteRepository.delete(Favorite.of(article.getId(), loginUser.getId()));
+
+        Object[] queryResult = (Object[]) articleRepository.searchBySlug(slug, loginUser.getId());
+        log.info("deleteFavorite() : queryResult = {}", queryResult);
+        log.info("deleteFavorite() : queryResult.length = {}", queryResult.length);
+
+        return getArticleResponse(queryResult);
     }
 
 
