@@ -203,17 +203,9 @@ public class ArticleService {
         }
         log.info("getComments() : loginUserId = {}", loginUserId);
 
-        List<Object[]> comments = commentRepository.commentsBySlug(slug, loginUserId);
+        List<Object[]> queryResults = commentRepository.commentsBySlug(slug, loginUserId);
 
-        List<CommentResponse> list = new ArrayList<>();
-        // todo::stream
-        for (Object[] queryResult : comments) {
-            log.info("getArticles() : queryResult = {}", queryResult);
-            log.info("getArticles() : queryResult.length = {}", queryResult.length);
-            list.add(getCommentResponse(queryResult));
-        }
-
-        return list;
+        return queryResults.stream().map(this::getCommentResponse).toList();
     }
 
     public void deleteComment(String slug, Long id, String auth) {
