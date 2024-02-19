@@ -100,4 +100,20 @@ public class ArticleController {
                 .body(new CommentResponseWrapper(commentResponse));
     }
 
+    @GetMapping("/{slug}/comments")
+    public ResponseEntity<?> getComment(@PathVariable String slug, @RequestHeader(value = "Authorization", required = false) String auth) {
+        log.info("getComment() : slug = {}", slug);
+        log.info("getComment() : auth = {}", auth);
+
+        return ResponseEntity.ok(new CommentsResponseWrapper(articleService.getComments(slug, auth)));
+    }
+
+    @DeleteMapping("/{slug}/comments/{id}")
+    public void deleteComment(@PathVariable String slug, @PathVariable Long id, @RequestHeader(value = "Authorization") String auth) {
+        log.info("deleteComment() : slug = {}", slug);
+        log.info("deleteComment() : id = {}", id);
+
+        articleService.deleteComment(slug, id, auth);
+    }
+
 }

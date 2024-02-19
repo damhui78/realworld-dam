@@ -195,6 +195,50 @@ public class ArticleService {
         return CommentResponse.of(comment, ProfileResponse.of(loginUser, false));
     }
 
+    public List<CommentResponse> getComments(String slug, String auth) {
+        Long loginUserId = -1L;
+        if (StringUtils.isNotBlank(auth)) {
+            RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+            loginUserId = loginUser.getId();
+        }
+        log.info("getComments() : loginUserId = {}", loginUserId);
+
+        List<Object[]> comments = commentRepository.commentsBySlug(slug, loginUserId);
+
+        List<CommentResponse> list = new ArrayList<>();
+        // todo::stream
+        for (Object[] queryResult : comments) {
+            log.info("getArticles() : queryResult = {}", queryResult);
+            log.info("getArticles() : queryResult.length = {}", queryResult.length);
+            list.add(getCommentResponse(queryResult));
+        }
+
+        return list;
+    }
+
+    public void deleteComment(String slug, Long id, String auth) {
+
+        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+        if (loginUser == null) {
+            throw new IllegalArgumentException("login user not found");
+        }
+        Article article = articleRepository.findBySlug(slug);
+        if (article == null) {
+            throw new IllegalArgumentException("article not found");
+        }
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("comment not found"));
+
+        if (!article.getId().equals(comment.getArticleId())) {
+            throw new IllegalArgumentException("article id mismatch");
+        }
+        if (!loginUser.getId().equals(comment.getAuthorId())) {
+            throw new IllegalArgumentException("user id mismatch");
+        }
+
+        commentRepository.deleteById(id);
+    }
+
 
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -210,6 +254,18 @@ public class ArticleService {
                 (Article)queryResult[0],
                 favorite != null,
                 (Long)queryResult[4],
+                ProfileResponse.of((RealWorldUser) queryResult[1], following != null));
+    }
+
+    private CommentResponse getCommentResponse(final Object[] queryResult) {
+        if (queryResult.length < 3) {
+            throw new IllegalArgumentException("check query");
+        }
+
+        Following following = (Following) queryResult[2];
+
+        return CommentResponse.of(
+                (Comment) queryResult[0],
                 ProfileResponse.of((RealWorldUser) queryResult[1], following != null));
     }
 
