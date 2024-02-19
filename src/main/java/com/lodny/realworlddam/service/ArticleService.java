@@ -1,11 +1,9 @@
 package com.lodny.realworlddam.service;
 
-import com.lodny.realworlddam.entity.Article;
-import com.lodny.realworlddam.entity.Favorite;
-import com.lodny.realworlddam.entity.Following;
-import com.lodny.realworlddam.entity.RealWorldUser;
+import com.lodny.realworlddam.entity.*;
 import com.lodny.realworlddam.entity.dto.*;
 import com.lodny.realworlddam.repository.ArticleRepository;
+import com.lodny.realworlddam.repository.CommentRepository;
 import com.lodny.realworlddam.repository.FavoriteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +24,7 @@ public class ArticleService {
     private final ProfileService profileService;
     private final ArticleRepository articleRepository;
     private final FavoriteRepository favoriteRepository;
+    private final CommentRepository commentRepository;
 
 
     public ArticleResponse createArticle(CreateArticleRequest createArticleRequest, String auth) {
@@ -184,6 +183,16 @@ public class ArticleService {
         log.info("deleteFavorite() : queryResult.length = {}", queryResult.length);
 
         return getArticleResponse(queryResult);
+    }
+
+    public CommentResponse addComment(String slug, AddCommentRequest addCommentRequest, String auth) {
+
+        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+        Article article = articleRepository.findBySlug(slug);
+
+        Comment comment = commentRepository.save(Comment.of(article.getId(), addCommentRequest, loginUser.getId()));
+
+        return CommentResponse.of(comment, ProfileResponse.of(loginUser, false));
     }
 
 

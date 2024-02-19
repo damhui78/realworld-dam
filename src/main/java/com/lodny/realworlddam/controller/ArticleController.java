@@ -1,9 +1,7 @@
 package com.lodny.realworlddam.controller;
 
 import com.lodny.realworlddam.entity.dto.*;
-import com.lodny.realworlddam.entity.wrapper.ArticleResponseWrapper;
-import com.lodny.realworlddam.entity.wrapper.CreateArticleRequestWrapper;
-import com.lodny.realworlddam.entity.wrapper.UpdateArticleRequestWrapper;
+import com.lodny.realworlddam.entity.wrapper.*;
 import com.lodny.realworlddam.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +86,18 @@ public class ArticleController {
         ArticleResponse articleResponse = articleService.deleteFavorite(slug, auth);
 
         return ResponseEntity.ok(new ArticleResponseWrapper(articleResponse));
+    }
+
+    @PostMapping("/{slug}/comments")
+    public ResponseEntity<?> addComment(@PathVariable String slug, @RequestBody AddCommentRequestWrapper addCommentRequestWrapper, @RequestHeader(value = "Authorization") String auth) {
+        log.info("addComment() : slug = {}", slug);
+        AddCommentRequest addCommentRequest = addCommentRequestWrapper.comment();
+        log.info("addComment() : addCommentRequest = {}", addCommentRequest);
+
+        CommentResponse commentResponse = articleService.addComment(slug, addCommentRequest, auth);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new CommentResponseWrapper(commentResponse));
     }
 
 }
