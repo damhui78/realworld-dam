@@ -1,5 +1,6 @@
 package com.lodny.realworlddam.util;
 
+import com.lodny.realworlddam.entity.RealWorldUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Component
@@ -15,6 +18,7 @@ import java.util.Date;
 public class JwtUtil {
 
     private final JwtProperty jwtProperty;
+    private static Map<String, RealWorldUser> loginUsers = new HashMap<>();
 
     public String createJwt(String email) {
         Date now = new Date();
@@ -74,6 +78,19 @@ public class JwtUtil {
         isValidJwt(jwt);
 
         return getSubjectByJwt(jwt);
+    }
+
+    public RealWorldUser getLoginUser(String sessionId) {
+
+        return loginUsers.get(sessionId);
+    }
+    public void setLoginUser(String sessionId, RealWorldUser user) {
+
+        loginUsers.put(sessionId, user);
+    }
+    public void removeLoginUser(String sessionId) {
+
+        loginUsers.remove(sessionId);
     }
 
 }
