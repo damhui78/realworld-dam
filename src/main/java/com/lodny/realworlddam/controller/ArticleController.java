@@ -3,6 +3,7 @@ package com.lodny.realworlddam.controller;
 import com.lodny.realworlddam.entity.dto.*;
 import com.lodny.realworlddam.entity.wrapper.*;
 import com.lodny.realworlddam.service.ArticleService;
+import com.lodny.realworlddam.system.JwtSecured;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,6 +90,7 @@ public class ArticleController {
         return ResponseEntity.ok(new ArticleResponseWrapper(articleResponse));
     }
 
+    @JwtSecured
     @PostMapping("/{slug}/comments")
     public ResponseEntity<?> addComment(@PathVariable String slug, @RequestBody AddCommentRequestWrapper addCommentRequestWrapper, @RequestHeader(value = "Authorization") String auth) {
         log.info("addComment() : slug = {}", slug);
