@@ -197,8 +197,7 @@ public class ArticleService {
         return CommentResponse.of(comment, ProfileResponse.of(loginUser, false));
     }
 
-    public List<CommentResponse> getComments(String slug, String sessionId) {
-        RealWorldUser loginUser = jwtUtil.getLoginUser(sessionId);
+    public List<CommentResponse> getComments(String slug, RealWorldUser loginUser) {
         Long loginUserId = loginUser == null ? -1L : loginUser.getId();
         log.info("getComments() : loginUserId = {}", loginUserId);
 
