@@ -3,6 +3,7 @@ package com.lodny.realworlddam.controller;
 import com.lodny.realworlddam.entity.dto.*;
 import com.lodny.realworlddam.entity.wrapper.*;
 import com.lodny.realworlddam.service.ArticleService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -101,11 +102,12 @@ public class ArticleController {
     }
 
     @GetMapping("/{slug}/comments")
-    public ResponseEntity<?> getComment(@PathVariable String slug, @RequestHeader(value = "Authorization", required = false) String auth) {
+    public ResponseEntity<?> getComment(@PathVariable String slug, HttpServletRequest request) { // @RequestHeader(value = "Authorization", required = false) String auth
         log.info("getComment() : slug = {}", slug);
-        log.info("getComment() : auth = {}", auth);
+        String sessionId = request.getSession().getId();
+        log.info("getComment() : sessionId = {}", sessionId);
 
-        return ResponseEntity.ok(new CommentsResponseWrapper(articleService.getComments(slug, auth)));
+        return ResponseEntity.ok(new CommentsResponseWrapper(articleService.getComments(slug, sessionId)));
     }
 
     @DeleteMapping("/{slug}/comments/{id}")

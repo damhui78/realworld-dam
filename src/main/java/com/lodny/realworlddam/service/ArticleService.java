@@ -5,6 +5,7 @@ import com.lodny.realworlddam.entity.dto.*;
 import com.lodny.realworlddam.repository.ArticleRepository;
 import com.lodny.realworlddam.repository.CommentRepository;
 import com.lodny.realworlddam.repository.FavoriteRepository;
+import com.lodny.realworlddam.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final FavoriteRepository favoriteRepository;
     private final CommentRepository commentRepository;
+    private final JwtUtil jwtUtil;
 
 
     public ArticleResponse createArticle(CreateArticleRequest createArticleRequest, String auth) {
@@ -195,15 +197,13 @@ public class ArticleService {
         return CommentResponse.of(comment, ProfileResponse.of(loginUser, false));
     }
 
-    public List<CommentResponse> getComments(String slug, String auth) {
-        Long loginUserId = -1L;
-        if (StringUtils.isNotBlank(auth)) {
-            RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
-            loginUserId = loginUser.getId();
-        }
+    public List<CommentResponse> getComments(String slug, String sessionId) {
+        RealWorldUser loginUser = jwtUtil.getLoginUser(sessionId);
+        Long loginUserId = loginUser == null ? -1L : loginUser.getId();
         log.info("getComments() : loginUserId = {}", loginUserId);
 
         List<Object[]> queryResults = commentRepository.commentsBySlug(slug, loginUserId);
+        log.info("getComments() : queryResults = {}", queryResults);
 
         return queryResults.stream().map(this::getCommentResponse).toList();
     }
