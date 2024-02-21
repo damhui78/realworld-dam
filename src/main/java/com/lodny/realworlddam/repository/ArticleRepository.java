@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
@@ -71,5 +73,14 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
         order by a.createdAt desc
     """)
     Page<Object[]> getFeed(Long loginId, Pageable pageable);
+
+    @Query(value = """
+        select tag
+        from article_tag
+        group by tag
+        order by count(1) desc
+        limit 10
+    """, nativeQuery = true)
+    List<String> getTags();
 
 }
