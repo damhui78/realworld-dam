@@ -4,6 +4,8 @@ import com.lodny.realworlddam.entity.RealWorldUser;
 import com.lodny.realworlddam.entity.wrapper.ProfileResponseWrapper;
 import com.lodny.realworlddam.service.ProfileService;
 import com.lodny.realworlddam.service.UserService;
+import com.lodny.realworlddam.system.JwtSecured;
+import com.lodny.realworlddam.system.LoginUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,31 +21,30 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @GetMapping("/{username}")
-    public ResponseEntity<?> getProfile(@PathVariable String username, @RequestHeader(value = "Authorization", required = false) String auth) {
+    public ResponseEntity<?> getProfile(@PathVariable String username, @LoginUser RealWorldUser loginUser) {
         log.info("getProfile() : username = {}", username);
-        log.info("getProfile() : auth = {}", auth);
 
-        return ResponseEntity.ok(new ProfileResponseWrapper(profileService.getProfile(username, auth)));
+        return ResponseEntity.ok(new ProfileResponseWrapper(profileService.getProfile(username, loginUser)));
     }
 
+    @JwtSecured
     @PostMapping("/{username}/follow")
-    public ResponseEntity<?> saveFollowing(@PathVariable String username, @RequestHeader(value = "Authorization") String auth) {
+    public ResponseEntity<?> saveFollowing(@PathVariable String username, @LoginUser RealWorldUser loginUser) {
         log.info("saveFollowing() : username = {}", username);
-        log.info("saveFollowing() : auth = {}", auth);
 
         RealWorldUser followee = userService.getRealWorldUserByUsername(username);
 
-        return ResponseEntity.ok(new ProfileResponseWrapper(profileService.follow(followee, auth)));
+        return ResponseEntity.ok(new ProfileResponseWrapper(profileService.follow(followee, loginUser)));
     }
 
+    @JwtSecured
     @DeleteMapping("/{username}/follow")
-    public ResponseEntity<?> deleteFollowing(@PathVariable String username, @RequestHeader(value = "Authorization") String auth) {
+    public ResponseEntity<?> deleteFollowing(@PathVariable String username, @LoginUser RealWorldUser loginUser) {
         log.info("deleteFollowing() : username = {}", username);
-        log.info("deleteFollowing() : auth = {}", auth);
 
         RealWorldUser followee = userService.getRealWorldUserByUsername(username);
 
-        return ResponseEntity.ok(new ProfileResponseWrapper(profileService.unfollow(followee, auth)));
+        return ResponseEntity.ok(new ProfileResponseWrapper(profileService.unfollow(followee, loginUser)));
     }
 
 }

@@ -39,22 +39,19 @@ public class UserService {
         userRepository.save(realWorldUser);
     }
 
-    public LoginUserResponse updateUser(UpdateUserRequest updateUserRequest, final String auth) {
+    public LoginUserResponse updateUser(UpdateUserRequest updateUserRequest, final String auth, RealWorldUser loginUser) {
         log.info("updateUser() : updateUserRequest = {}", updateUserRequest);
 
-        RealWorldUser realWorldUser = getRealWorldUserByAuth(auth);
+        loginUser.update(updateUserRequest);
+        userRepository.save(loginUser);
+//        userRepository.update(loginUser);
 
-        realWorldUser.update(updateUserRequest);
-        userRepository.save(realWorldUser);
-//        userRepository.update(realWorldUser);
-
-        return getLoginUserResponse(auth, realWorldUser);
+        return getLoginUserResponse(auth, loginUser);
     }
 
-    public LoginUserResponse getUser(String auth) {
+    public LoginUserResponse getLoginUser(String auth, RealWorldUser loginUser) {
 
-        RealWorldUser realWorldUser = getRealWorldUserByAuth(auth);
-        return getLoginUserResponse(auth, realWorldUser);
+        return getLoginUserResponse(auth, loginUser);
     }
     public RealWorldUser getUser(Long id) {
 

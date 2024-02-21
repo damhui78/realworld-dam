@@ -5,7 +5,6 @@ import com.lodny.realworlddam.entity.dto.*;
 import com.lodny.realworlddam.repository.ArticleRepository;
 import com.lodny.realworlddam.repository.CommentRepository;
 import com.lodny.realworlddam.repository.FavoriteRepository;
-import com.lodny.realworlddam.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -26,26 +25,26 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final FavoriteRepository favoriteRepository;
     private final CommentRepository commentRepository;
-    private final JwtUtil jwtUtil;
 
 
-    public ArticleResponse createArticle(CreateArticleRequest createArticleRequest, String auth) {
+    public ArticleResponse createArticle(CreateArticleRequest createArticleRequest, RealWorldUser loginUser) {
 
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
-        ProfileResponse authorProfile = profileService.getProfile(loginUser.getUsername(), auth);
+        ProfileResponse authorProfile = profileService.getProfile(loginUser.getUsername(), loginUser);
         Article article = articleRepository.save(Article.of(createArticleRequest, loginUser.getId()));
 
         return ArticleResponse.of(article, false, 0L, authorProfile);
     }
 
-    public ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest,String slug, String auth) {
+    public ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest,String slug, RealWorldUser loginUser) {
 
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
         Article originalArticle = articleRepository.findBySlug(slug);
+        if (originalArticle == null) {
+            throw new IllegalArgumentException("slug not found");
+        }
         if (originalArticle.getAuthorId() != loginUser.getId()) {
             throw new IllegalArgumentException("ID Mismatch");
         }
-        ProfileResponse authorProfile = profileService.getProfile(loginUser.getUsername(), auth);
+        ProfileResponse authorProfile = profileService.getProfile(loginUser.getUsername(), loginUser);
 
         originalArticle.update(updateArticleRequest);
 
@@ -54,8 +53,7 @@ public class ArticleService {
         return ArticleResponse.of(article, false, 0L, authorProfile);
     }
 
-    public void deleteArticle(String slug, String auth) {
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+    public void deleteArticle(String slug, RealWorldUser loginUser) {
         Article article = articleRepository.findBySlug(slug);
         if (article.getAuthorId() != loginUser.getId()) {
             throw new IllegalArgumentException("ID Mismatch");
@@ -83,13 +81,9 @@ public class ArticleService {
 //
 //        return ArticleResponse.of(article, favorited, favoritesCount, authorProfile);
 //    }
-    public ArticleResponse getArticle(String slug, String auth) {
-        Long loginUserId = -1L;
-
-        if (StringUtils.isNotBlank(auth)) {
-            RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
-            loginUserId = loginUser.getId();
-        }
+    public ArticleResponse getArticle(String slug, RealWorldUser loginUser) {
+        Long loginUserId = loginUser == null ? -1L : loginUser.getId();
+        log.info("getArticle() : loginUserId = {}", loginUserId);
 
         Object[] queryResult = (Object[])articleRepository.searchBySlug(slug, loginUserId);
         log.info("getArticle() : queryResult = {}", queryResult);
@@ -97,12 +91,8 @@ public class ArticleService {
         return getArticleResponse(queryResult);
     }
 
-    public ArticlesResponse getArticles(SearchArticleRequest searchArticleRequest, String auth) {
-        Long loginUserId = -1L;
-        if (StringUtils.isNotBlank(auth)) {
-            RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
-            loginUserId = loginUser.getId();
-        }
+    public ArticlesResponse getArticles(SearchArticleRequest searchArticleRequest, RealWorldUser loginUser) {
+        Long loginUserId = loginUser == null ? -1L : loginUser.getId();
         log.info("getArticles() : loginUserId = {}", loginUserId);
 
         List<ArticleResponse> list = new ArrayList<>();
@@ -132,8 +122,7 @@ public class ArticleService {
         return new ArticlesResponse(list, list.size());
     }
 
-    public ArticlesResponse getFeedArticles(SearchArticleRequest searchArticleRequest, String auth) {
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+    public ArticlesResponse getFeedArticles(SearchArticleRequest searchArticleRequest, RealWorldUser loginUser) {
         log.info("getFeedArticles() : loginUserId = {}", loginUser.getId());
 
         List<ArticleResponse> list = new ArrayList<>();
@@ -154,9 +143,8 @@ public class ArticleService {
         return new ArticlesResponse(list, list.size());
     }
 
-    public ArticleResponse createFavorite(String slug, String auth) {
+    public ArticleResponse createFavorite(String slug, RealWorldUser loginUser) {
 
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
         Object[] searchBySlug = (Object[]) articleRepository.searchBySlug(slug, loginUser.getId());
         Favorite favorite = (Favorite) searchBySlug[3];
         log.info("createFavorite() : favorite = {}", favorite);
@@ -173,9 +161,8 @@ public class ArticleService {
         return getArticleResponse(queryResult);
     }
 
-    public ArticleResponse deleteFavorite(String slug, String auth) {
+    public ArticleResponse deleteFavorite(String slug, RealWorldUser loginUser) {
 
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
         Article article = articleRepository.findBySlug(slug);
 
         favoriteRepository.delete(Favorite.of(article.getId(), loginUser.getId()));
@@ -187,9 +174,8 @@ public class ArticleService {
         return getArticleResponse(queryResult);
     }
 
-    public CommentResponse addComment(String slug, AddCommentRequest addCommentRequest, String auth) {
+    public CommentResponse addComment(String slug, AddCommentRequest addCommentRequest, RealWorldUser loginUser) {
 
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
         Article article = articleRepository.findBySlug(slug);
 
         Comment comment = commentRepository.save(Comment.of(article.getId(), addCommentRequest, loginUser.getId()));
@@ -207,9 +193,8 @@ public class ArticleService {
         return queryResults.stream().map(this::getCommentResponse).toList();
     }
 
-    public void deleteComment(String slug, Long id, String auth) {
+    public void deleteComment(String slug, Long id, RealWorldUser loginUser) {
 
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
         if (loginUser == null) {
             throw new IllegalArgumentException("login user not found");
         }

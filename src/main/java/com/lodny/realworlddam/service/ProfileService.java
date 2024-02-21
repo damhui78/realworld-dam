@@ -7,7 +7,6 @@ import com.lodny.realworlddam.entity.dto.ProfileResponse;
 import com.lodny.realworlddam.repository.FollowingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -23,26 +22,22 @@ public class ProfileService {
         RealWorldUser followee = userService.getRealWorldUserByUsername(username);
         return getProfileResponse(followee, false);
     }
-    public ProfileResponse getProfile(String username, String auth) {
+    public ProfileResponse getProfile(String username, RealWorldUser loginUser) {
         RealWorldUser followee = userService.getRealWorldUserByUsername(username);
-        return getProfileResponse(followee, isFollowing(followee, auth));
+        return getProfileResponse(followee, isFollowing(followee, loginUser));
     }
 
-    public ProfileResponse follow(RealWorldUser followee, String auth) {
+    public ProfileResponse follow(RealWorldUser followee, RealWorldUser follower) {
         log.info("follow() : followee = {}", followee);
-        log.info("follow() : auth = {}", auth);
 
-        RealWorldUser follower = userService.getRealWorldUserByAuth(auth);
         followingRepository.save(Following.of(followee.getId(), follower.getId()));
 
         return getProfileResponse(followee, true);
     }
 
-    public ProfileResponse unfollow(RealWorldUser followee, String auth) {
+    public ProfileResponse unfollow(RealWorldUser followee, RealWorldUser follower) {
         log.info("unfollow() : followee = {}", followee);
-        log.info("unfollow() : auth = {}", auth);
 
-        RealWorldUser follower = userService.getRealWorldUserByAuth(auth);
         followingRepository.deleteById(new FollowingId(followee.getId(), follower.getId()));
 
         return getProfileResponse(followee, false);
@@ -51,11 +46,8 @@ public class ProfileService {
 
 
     // -----------------------------------------------------------------------------------------------------------------
-    private Boolean isFollowing(final RealWorldUser user, final String auth) {
-        if (user == null) return false;
-        if (StringUtils.isBlank(auth)) return false;
-
-        RealWorldUser loginUser = userService.getRealWorldUserByAuth(auth);
+    private Boolean isFollowing(final RealWorldUser user, final RealWorldUser loginUser) {
+        if (user == null || loginUser == null) return false;
 
         return followingRepository
                 .findById(new FollowingId(user.getId(), loginUser.getId()))
