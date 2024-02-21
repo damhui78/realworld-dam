@@ -7,7 +7,6 @@ import com.lodny.realworlddam.repository.CommentRepository;
 import com.lodny.realworlddam.repository.FavoriteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -96,21 +95,17 @@ public class ArticleService {
         log.info("getArticles() : loginUserId = {}", loginUserId);
 
         List<ArticleResponse> list = new ArrayList<>();
-        Page<Object[]> articles;
 
         int page = searchArticleRequest.offset() / searchArticleRequest.limit();
         log.info("getArticles() : page = {}", page);
         PageRequest pageRequest = PageRequest.of(page, searchArticleRequest.limit());
 
-        if (StringUtils.isNotBlank(searchArticleRequest.tag())) {
-            articles = articleRepository.searchByTag(searchArticleRequest.tag(), loginUserId, pageRequest);
-        } else if (StringUtils.isNotBlank(searchArticleRequest.author())) {
-            articles = articleRepository.searchByAuthor(searchArticleRequest.author(), loginUserId, pageRequest);
-        } else if (StringUtils.isNotBlank(searchArticleRequest.favorited())) {
-            articles = articleRepository.searchByFavorited(searchArticleRequest.favorited(), loginUserId, pageRequest);
-        } else {
-            throw new IllegalArgumentException("search term not found");
-        }
+        Page<Object[]> articles = switch (searchArticleRequest.type()) {
+            case "tag" -> articleRepository.searchByTag(searchArticleRequest.tag(), loginUserId, pageRequest);
+            case "author" -> articleRepository.searchByAuthor(searchArticleRequest.author(), loginUserId, pageRequest);
+            case "favorited" -> articleRepository.searchByFavorited(searchArticleRequest.favorited(), loginUserId, pageRequest);
+            default -> throw new IllegalArgumentException("search term not found");
+        };
         log.info("getArticles() : articles = {}", articles);
 
         for (Object[] queryResult : articles) {
