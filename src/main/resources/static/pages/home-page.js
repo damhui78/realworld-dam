@@ -105,7 +105,7 @@ const getTemplate = () => {
     `;
 }
 
-class ArticlePage extends HTMLElement {
+class HomePage extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
@@ -133,5 +133,5 @@ class ArticlePage extends HTMLElement {
     }
 }
 
-customElements.define('article-page', ArticlePage);
-export {ArticlePage}
+customElements.define('home-page', HomePage);
+export {HomePage}

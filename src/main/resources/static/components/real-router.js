@@ -1,4 +1,4 @@
-import {ArticlePage} from "../pages/article-page.js";
+import {HomePage} from "../pages/home-page.js";
 import {LoginPage} from "../pages/login-page.js";
 import {RegisterPage} from "../pages/register-page.js";
 
@@ -12,7 +12,7 @@ const getTemplate = () => {
         ${style}
         
         <div>
-            <article-page></article-page>
+            <home-page></home-page>
         </div>
     `;
 }
@@ -41,13 +41,7 @@ class realRouter extends HTMLElement {
 
     render(page_name) {
         console.log('test param : ', page_name);
-        if (page_name === 'login') {
-            this.divTag.innerHTML = '<login-page></login-page>';
-        } else if (page_name === 'register') {
-            this.divTag.innerHTML = '<register-page></register-page>';
-        } else {
-            this.divTag.innerHTML = '<article-page></article-page>';
-        }
+        this.divTag.innerHTML = `<${page_name}-page></${page_name}-page>`;
     }
 }
 
