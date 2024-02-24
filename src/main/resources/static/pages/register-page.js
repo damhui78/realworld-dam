@@ -22,13 +22,13 @@ const getTemplate = () => {
         
                 <form>
                   <fieldset class="form-group">
-                    <input class="form-control form-control-lg" type="text" placeholder="Username" />
+                    <input id="username" class="form-control form-control-lg" type="text" placeholder="Username" />
                   </fieldset>
                   <fieldset class="form-group">
-                    <input class="form-control form-control-lg" type="text" placeholder="Email" />
+                    <input id="email" class="form-control form-control-lg" type="text" placeholder="Email" />
                   </fieldset>
                   <fieldset class="form-group">
-                    <input class="form-control form-control-lg" type="password" placeholder="Password" />
+                    <input id="password" class="form-control form-control-lg" type="password" placeholder="Password" />
                   </fieldset>
                   <button class="btn btn-lg btn-primary pull-xs-right">Sign up</button>
                 </form>
@@ -60,7 +60,22 @@ class RegisterPage extends HTMLElement {
     }
 
     setEventHandler() {
+        this.shadowRoot.querySelector('button').addEventListener('click', this.clickSignup);
+    }
 
+    clickSignup = (evt) => {
+        console.log('clickSighup evt : ', evt);
+        evt.preventDefault();
+
+        const username = this.shadowRoot.querySelector('#username').value;
+        const email = this.shadowRoot.querySelector('#email').value;
+        const password = this.shadowRoot.querySelector('#password').value;
+        console.log('clickSighup username : ', username);
+        console.log('clickSighup email : ', email);
+        console.log('clickSighup password : ', password);
+
+        const user = {username, email, password};
+        console.log('clickSighup user : ', user);
     }
 
     render() {

@@ -22,10 +22,10 @@ const getTemplate = () => {
         
                 <form>
                   <fieldset class="form-group">
-                    <input class="form-control form-control-lg" type="text" placeholder="Email" />
+                    <input id="email" class="form-control form-control-lg" type="text" placeholder="Email" />
                   </fieldset>
                   <fieldset class="form-group">
-                    <input class="form-control form-control-lg" type="password" placeholder="Password" />
+                    <input id="password" class="form-control form-control-lg" type="password" placeholder="Password" />
                   </fieldset>
                   <button class="btn btn-lg btn-primary pull-xs-right">Sign in</button>
                 </form>
@@ -53,11 +53,23 @@ class LoginPage extends HTMLElement {
     }
 
     findElements() {
-
     }
 
     setEventHandler() {
+        this.shadowRoot.querySelector('button').addEventListener('click', this.clickSignin);
+    }
 
+    clickSignin = (evt) => {
+        console.log('clickSignin evt : ', evt);
+        evt.preventDefault();
+
+        const email = this.shadowRoot.querySelector('#email').value;
+        const password = this.shadowRoot.querySelector('#password').value;
+        console.log('clickSignin email : ', email);
+        console.log('clickSignin password : ', password);
+
+        const user = {email, password};
+        console.log('clickSignin user : ', user);
     }
 
     render() {
