@@ -317,29 +317,9 @@ a {
     text-decoration: none
 }
 
-a:focus, a:hover {
-    color: #3d8b3d;
-    text-decoration: underline
-}
-
-a:focus {
-    outline: thin dotted;
-    outline: 5px auto -webkit-focus-ring-color;
-    outline-offset: -2px
-}
-
 a:not([href]) {
     color: inherit;
     text-decoration: none
-}
-
-a:not([href]):focus, a:not([href]):hover {
-    color: inherit;
-    text-decoration: none
-}
-
-a:not([href]):focus {
-    outline: none
 }
 
 pre {
@@ -3683,7 +3663,7 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     display: inline-block
 }
 
-.nav-link:focus, .nav-link:hover {
+.nav-link:hover {
     text-decoration: none
 }
 
@@ -3731,7 +3711,7 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     border-radius: .25rem .25rem 0 0
 }
 
-.nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
+.nav-tabs .nav-link:hover {
     border-color: #eceeef #eceeef #ddd
 }
 
@@ -3741,7 +3721,7 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     border-color: transparent
 }
 
-.nav-tabs .nav-link.active, .nav-tabs .nav-link.active:focus, .nav-tabs .nav-link.active:hover, .nav-tabs .nav-item.open .nav-link, .nav-tabs .nav-item.open .nav-link:focus, .nav-tabs .nav-item.open .nav-link:hover {
+.nav-tabs .nav-link.active, .nav-tabs .nav-link.active:hover, .nav-tabs .nav-item.open .nav-link, .nav-tabs .nav-item.open .nav-link:hover {
     color: #55595c;
     background-color: #fff;
     border-color: #ddd #ddd transparent
@@ -3773,7 +3753,7 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     border-radius: .25rem
 }
 
-.nav-pills .nav-link.active, .nav-pills .nav-link.active:focus, .nav-pills .nav-link.active:hover, .nav-pills .nav-item.open .nav-link, .nav-pills .nav-item.open .nav-link:focus, .nav-pills .nav-item.open .nav-link:hover {
+.nav-pills .nav-link.active, .nav-pills .nav-link.active:hover, .nav-pills .nav-item.open .nav-link, .nav-pills .nav-item.open .nav-link:hover {
     color: #fff;
     cursor: default;
     background-color: #5cb85c
@@ -3866,7 +3846,7 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     font-size: 1.25rem
 }
 
-.navbar-brand:focus, .navbar-brand:hover {
+.navbar-brand:hover {
     text-decoration: none
 }
 
@@ -3897,7 +3877,7 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     border-radius: .25rem
 }
 
-.navbar-toggler:focus, .navbar-toggler:hover {
+.navbar-toggler:hover {
     text-decoration: none
 }
 
@@ -3941,7 +3921,7 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     color: rgba(0, 0, 0, .8)
 }
 
-.navbar-light .navbar-brand:focus, .navbar-light .navbar-brand:hover {
+.navbar-light .navbar-brand:hover {
     color: rgba(0, 0, 0, .8)
 }
 
@@ -3949,11 +3929,11 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     color: rgba(0, 0, 0, .3)
 }
 
-.navbar-light .navbar-nav .nav-link:focus, .navbar-light .navbar-nav .nav-link:hover {
+.navbar-light .navbar-nav .nav-link:hover {
     color: rgba(0, 0, 0, .6)
 }
 
-.navbar-light .navbar-nav .open > .nav-link, .navbar-light .navbar-nav .open > .nav-link:focus, .navbar-light .navbar-nav .open > .nav-link:hover, .navbar-light .navbar-nav .active > .nav-link, .navbar-light .navbar-nav .active > .nav-link:focus, .navbar-light .navbar-nav .active > .nav-link:hover, .navbar-light .navbar-nav .nav-link.open, .navbar-light .navbar-nav .nav-link.open:focus, .navbar-light .navbar-nav .nav-link.open:hover, .navbar-light .navbar-nav .nav-link.active, .navbar-light .navbar-nav .nav-link.active:focus, .navbar-light .navbar-nav .nav-link.active:hover {
+.navbar-light .navbar-nav .open > .nav-link, .navbar-light .navbar-nav .open > .nav-link:hover, .navbar-light .navbar-nav .active > .nav-link, .navbar-light .navbar-nav .active > .nav-link:hover, .navbar-light .navbar-nav .nav-link.open, .navbar-light .navbar-nav .nav-link.open:hover, .navbar-light .navbar-nav .nav-link.active, .navbar-light .navbar-nav .nav-link.active:hover {
     color: rgba(0, 0, 0, .8)
 }
 
@@ -3965,7 +3945,7 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     color: #fff
 }
 
-.navbar-dark .navbar-brand:focus, .navbar-dark .navbar-brand:hover {
+.navbar-dark .navbar-brand:hover {
     color: #fff
 }
 
@@ -3973,11 +3953,11 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     color: rgba(255, 255, 255, .5)
 }
 
-.navbar-dark .navbar-nav .nav-link:focus, .navbar-dark .navbar-nav .nav-link:hover {
+.navbar-dark .navbar-nav .nav-link:hover {
     color: rgba(255, 255, 255, .75)
 }
 
-.navbar-dark .navbar-nav .open > .nav-link, .navbar-dark .navbar-nav .open > .nav-link:focus, .navbar-dark .navbar-nav .open > .nav-link:hover, .navbar-dark .navbar-nav .active > .nav-link, .navbar-dark .navbar-nav .active > .nav-link:focus, .navbar-dark .navbar-nav .active > .nav-link:hover, .navbar-dark .navbar-nav .nav-link.open, .navbar-dark .navbar-nav .nav-link.open:focus, .navbar-dark .navbar-nav .nav-link.open:hover, .navbar-dark .navbar-nav .nav-link.active, .navbar-dark .navbar-nav .nav-link.active:focus, .navbar-dark .navbar-nav .nav-link.active:hover {
+.navbar-dark .navbar-nav .open > .nav-link, .navbar-dark .navbar-nav .open > .nav-link:hover, .navbar-dark .navbar-nav .active > .nav-link, .navbar-dark .navbar-nav .active > .nav-link:hover, .navbar-dark .navbar-nav .nav-link.open, .navbar-dark .navbar-nav .nav-link.open:hover, .navbar-dark .navbar-nav .nav-link.active, .navbar-dark .navbar-nav .nav-link.active:hover {
     color: #fff
 }
 
