@@ -1,7 +1,6 @@
 // import {iconCdn} from "../services/icon-cdn.js";
 // import {apiGetProfile} from "../services/api.js";
 // import {store} from "../services/store.js";
-import {realRouter} from "./real-router.js";
 
 
 const style = `<style>
@@ -20,13 +19,13 @@ const getTemplate = () => {
                 <ul class="nav navbar-nav pull-xs-right">
                     <li class="nav-item">
                         <!-- Add "active" class when you're on that page" -->
-                        <a class="nav-link active" href="/">Home</a>
+                        <a id="homeLink" class="nav-link active" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/login">Sign in</a>
+                        <a id="loginLink" class="nav-link" href="/login">Sign in</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/register">Sign up</a>
+                        <a id="signupLink" class="nav-link" href="/register">Sign up</a>
                     </li>
                 </ul>
             </div>
@@ -46,8 +45,6 @@ class RealNavbar extends HTMLElement {
 
     connectedCallback() {
         console.log('real navbar  connectedCallback()')
-
-        this.render();
     }
 
     findElements() {
@@ -74,23 +71,25 @@ class RealNavbar extends HTMLElement {
         console.log('target.href : ', evt.target.href);
         // console.log('test : ', evt.target.closest('a'));
 
-
         evt.preventDefault();
 
+        this.render(evt.target);
+    }
+
+    render(evtTarget) {
+        console.log('evtTarget : ', evtTarget);
+        evtTarget = evtTarget || this.shadowRoot.querySelector('#homeLink');
 
         this.alinks.forEach(item => item.classList.remove('active'));
-        evt.target.classList.add('active');
+        evtTarget.classList.add('active');
 
-        if (evt.target.href.includes('login')) {
+        if (evtTarget.href.includes('login')) {
             this.router.render('login');
-        } else if (evt.target.href.includes('register')) {
+        } else if (evtTarget.href.includes('register')) {
             this.router.render('register');
         } else {
             this.router.render('home');
         }
-    }
-
-    render() {
     }
 }
 customElements.define('real-navbar', RealNavbar);

@@ -40,7 +40,7 @@ class realRouter extends HTMLElement {
     }
 
     render(page_name) {
-        console.log('test param : ', page_name);
+        console.log('page_name : ', page_name);
         this.divTag.innerHTML = `<${page_name}-page></${page_name}-page>`;
     }
 }

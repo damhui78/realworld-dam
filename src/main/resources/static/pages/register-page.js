@@ -1,4 +1,6 @@
 import {registerUserApi} from "../services/api.js";
+import {RealNavbar} from "../components/real-navbar.js";
+
 
 const style = `<style>
         
@@ -75,6 +77,9 @@ class RegisterPage extends HTMLElement {
         console.log('clickSighup user : ', user);
 
         registerUserApi(user);
+
+        const realNavbar = new RealNavbar();
+        realNavbar.render();
     }
 
     render() {
