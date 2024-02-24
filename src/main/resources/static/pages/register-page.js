@@ -1,3 +1,5 @@
+import {registerUserApi} from "../services/api.js";
+
 const style = `<style>
         
 </style>`;
@@ -64,18 +66,15 @@ class RegisterPage extends HTMLElement {
     }
 
     clickSignup = (evt) => {
-        console.log('clickSighup evt : ', evt);
         evt.preventDefault();
 
         const username = this.shadowRoot.querySelector('#username').value;
         const email = this.shadowRoot.querySelector('#email').value;
         const password = this.shadowRoot.querySelector('#password').value;
-        console.log('clickSighup username : ', username);
-        console.log('clickSighup email : ', email);
-        console.log('clickSighup password : ', password);
-
         const user = {username, email, password};
         console.log('clickSighup user : ', user);
+
+        registerUserApi(user);
     }
 
     render() {

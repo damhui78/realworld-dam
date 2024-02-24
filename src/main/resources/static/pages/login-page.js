@@ -1,3 +1,5 @@
+import {loginApi} from "../services/api.js";
+
 const style = `<style>
         
 </style>`;
@@ -22,10 +24,10 @@ const getTemplate = () => {
         
                 <form>
                   <fieldset class="form-group">
-                    <input id="email" class="form-control form-control-lg" type="text" placeholder="Email" />
+                    <input id="email" class="form-control form-control-lg" type="text" placeholder="Email" value="dam@dam.dam" />
                   </fieldset>
                   <fieldset class="form-group">
-                    <input id="password" class="form-control form-control-lg" type="password" placeholder="Password" />
+                    <input id="password" class="form-control form-control-lg" type="password" placeholder="Password" value="damdam" />
                   </fieldset>
                   <button class="btn btn-lg btn-primary pull-xs-right">Sign in</button>
                 </form>
@@ -59,17 +61,14 @@ class LoginPage extends HTMLElement {
         this.shadowRoot.querySelector('button').addEventListener('click', this.clickSignin);
     }
 
-    clickSignin = (evt) => {
-        console.log('clickSignin evt : ', evt);
+    clickSignin = async (evt) => {
         evt.preventDefault();
 
         const email = this.shadowRoot.querySelector('#email').value;
         const password = this.shadowRoot.querySelector('#password').value;
-        console.log('clickSignin email : ', email);
-        console.log('clickSignin password : ', password);
-
         const user = {email, password};
-        console.log('clickSignin user : ', user);
+        const loginUser = await loginApi(user);
+        console.log('clickSignin loginUser : ', loginUser);
     }
 
     render() {
