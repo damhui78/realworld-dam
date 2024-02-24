@@ -1,33 +1,25 @@
-const registerUserApi = async (user) => {
-    console.log('registerUserApi user : ', user);
+const postApi = async (url, param) => {
+    console.log('postApi param : ', param);
 
-    const response = await fetch('/api/users', {
+    const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({user})
+        body: JSON.stringify(param)
     });
-        // .then(response => response.json())
-        // .catch(console.error);
+    // .then(response => response.json())
+    // .catch(console.error);
 
     return await response.json();
 }
 
-const loginApi = async (user) => {
-    console.log('loginApi user : ', user);
+const registerUserApi = (user) => {
+    return postApi('/api/users', user);
+}
 
-    const resnose = await fetch('/api/users/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({user})
-    });
-        // .then(response => response.json())
-        // .catch(console.error);
-
-    return await resnose.json();
+const loginApi = (user) => {
+    return postApi('/api/users/login', {user});
 }
 
 export {registerUserApi, loginApi}
