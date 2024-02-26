@@ -1,6 +1,5 @@
-import {RealArticlePreview} from "../components/real-article-preview.js";
-import {realApi} from "../services/real-api.js";
-import {realStore} from "../services/real-store.js";
+import {RealTab} from "../components/real-tab.js";
+import {RealSidebar} from "../components/real-sidebar.js";
 
 
 const style = `<style>
@@ -23,45 +22,11 @@ const getTemplate = () => {
           <div class="container page">
             <div class="row">
               <div class="col-md-9">
-                <div class="feed-toggle">
-                  <ul class="nav nav-pills outline-active">
-                    <li class="nav-item">
-                      <a class="nav-link" href="">Your Feed</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link active" href="">Global Feed</a>
-                    </li>
-                  </ul>
-                </div>
-        
-                
-                <div id="article-preview-list"></div>                
-        
-                <ul class="pagination">
-                  <li class="page-item active">
-                    <a class="page-link" href="">1</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="">2</a>
-                  </li>
-                </ul>
+                <real-tab></real-tab>
               </div>
         
               <div class="col-md-3">
-                <div class="sidebar">
-                  <p>Popular Tags</p>
-        
-                  <div class="tag-list">
-                    <a href="" class="tag-pill tag-default">programming</a>
-                    <a href="" class="tag-pill tag-default">javascript</a>
-                    <a href="" class="tag-pill tag-default">emberjs</a>
-                    <a href="" class="tag-pill tag-default">angularjs</a>
-                    <a href="" class="tag-pill tag-default">react</a>
-                    <a href="" class="tag-pill tag-default">mean</a>
-                    <a href="" class="tag-pill tag-default">node</a>
-                    <a href="" class="tag-pill tag-default">rails</a>
-                  </div>
-                </div>
+                <real-sidebar></real-sidebar>
               </div>
             </div>
           </div>
@@ -79,20 +44,14 @@ class HomePage extends HTMLElement {
         this.setEventHandler();
     }
 
-    async connectedCallback() {
+    connectedCallback() {
         console.log('home page  connectedCallback()')
-
-        const data = await realApi.getArticles();
-        realStore.saveArticles(data.articles);
-        this.articles = data.articles;
-
-        console.log('home-page::connectedCallback(): this.articles:', this.articles);
 
         this.render();
     }
 
     findElements() {
-        this.divArticles = this.shadowRoot.querySelector('#article-preview-list');
+
     }
 
     setEventHandler() {
@@ -100,7 +59,7 @@ class HomePage extends HTMLElement {
     }
 
     render() {
-        this.divArticles.innerHTML = this.articles.map(article => `<real-article-preview slug="${article.slug}"></real-article-preview>`).join('');
+
     }
 }
 

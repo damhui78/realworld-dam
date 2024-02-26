@@ -36,7 +36,11 @@ class RealApi {
     }
 
     getArticles = () => {
-        return this.getApi('/api/articles?tag=reactjs');
+        return this.getApi('/api/articles');
+    }
+
+    getTags = () => {
+        return this.getApi('/api/tags');
     }
 
 }

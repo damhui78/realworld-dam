@@ -104,7 +104,7 @@ public class ArticleService {
             case "tag" -> articleRepository.searchByTag(searchArticleRequest.tag(), loginUserId, pageRequest);
             case "author" -> articleRepository.searchByAuthor(searchArticleRequest.author(), loginUserId, pageRequest);
             case "favorited" -> articleRepository.searchByFavorited(searchArticleRequest.favorited(), loginUserId, pageRequest);
-            default -> throw new IllegalArgumentException("search term not found");
+            default -> articleRepository.getArticles(loginUserId, pageRequest);
         };
         log.info("getArticles() : articles = {}", articles);
 
