@@ -1,9 +1,7 @@
 import {realStore} from "../services/real-store.js";
 
 const style = `<style>
-    .aaa {
-        color: red !important;
-    }        
+           
 </style>`;
 
 const getTemplate = () => {
@@ -98,16 +96,28 @@ class RealNavbar extends HTMLElement {
         evt.preventDefault();
 
         console.log('test clickAlink ');
-        console.log('evt : ', evt);
-        console.log('target : ', evt.target);
-        console.log('target.href : ', evt.target.href);
+        console.log('clickAlink evt : ', evt);
+        console.log('clickAlink target : ', evt.target);
+        console.log('clickAlink target.href : ', evt.target.href);
         // console.log('test : ', evt.target.closest('a'));
-
 
         this.render(evt.target);
     }
 
     render(evtTarget) {
+        this.alinks.forEach(item => item.classList.remove('active'));
+        evtTarget.classList.add('active');
+
+        if (evtTarget.href.includes('login')) {
+            this.router.render('login');
+        } else if (evtTarget.href.includes('register')) {
+            this.router.render('register');
+        } else {
+            this.router.render('home');
+        }
+    }
+
+    renderLogin() {
         const loginUser = realStore.getUser();
         console.log('real-navbar::render(): loginUser:', loginUser);
         if (loginUser) {
@@ -118,31 +128,12 @@ class RealNavbar extends HTMLElement {
             this.setEventHandler();
         }
 
-
-        console.log('evtTarget : ', evtTarget);
-        evtTarget = evtTarget ? evtTarget : this.shadowRoot.querySelector('#homeLink');
-        console.log('evtTarget : ', evtTarget);
+        const homeLink = this.shadowRoot.querySelector('#homeLink');
 
         this.alinks.forEach(item => item.classList.remove('active'));
-        // this.alinks.forEach(item => item.classList.remove('aaa'));
-        this.alinks.forEach(console.log);
-        console.log('evtTarget.classList : ', evtTarget.classList);
-        evtTarget.classList.add('active');
-        // evtTarget.classList.add('aaa');
-        console.log('add after ::::: evtTarget.classList : ', evtTarget.classList);
+        homeLink.classList.add('active');
 
-        // const home = this.shadowRoot.querySelector('#homeLink');
-        // console.log('>>>>>', evtTarget === home);
-        // home.classList.add('active');
-
-        if (evtTarget.href.includes('login')) {
-            this.router.render('login');
-        } else if (evtTarget.href.includes('register')) {
-            this.router.render('register');
-        } else {
-            this.router.render('home');
-        }
+        this.router.render('home');
     }
 }
 customElements.define('real-navbar', RealNavbar);
-export {RealNavbar}

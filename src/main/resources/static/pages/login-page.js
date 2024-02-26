@@ -1,5 +1,4 @@
 import {realApi} from "../services/real-api.js";
-import {RealNavbar} from "../components/real-navbar.js";
 import {realStore} from "../services/real-store.js";
 
 const style = `<style>
@@ -73,8 +72,8 @@ class LoginPage extends HTMLElement {
         console.log('clickSignin loginUser : ', loginUser);
         realStore.saveUser(loginUser);
 
-        const realNavbar = new RealNavbar();
-        realNavbar.render();
+        const realNavbar = document.querySelector('real-navbar');
+        realNavbar.renderLogin();
     }
 
     render() {

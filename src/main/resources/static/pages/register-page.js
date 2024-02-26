@@ -1,6 +1,4 @@
 import {realApi} from "../services/real-api.js";
-import {RealNavbar} from "../components/real-navbar.js";
-
 
 const style = `<style>
         
@@ -78,8 +76,8 @@ class RegisterPage extends HTMLElement {
 
         realApi.registerUserApi(user);
 
-        const realNavbar = new RealNavbar();
-        realNavbar.render();
+        const realNavbar = document.querySelector('real-navbar');
+        realNavbar.renderLogin();
     }
 
     render() {
