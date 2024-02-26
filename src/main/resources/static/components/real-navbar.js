@@ -29,7 +29,7 @@ const getTemplate = () => {
         </nav>
     `;
 }
-const getLoginTemplate = () => {
+const getLoginTemplate = (username) => {
     return `
 <!--        <link rel="stylesheet" href="//demo.productionready.io/main.css" />-->
         <link rel="stylesheet" href="/css/real.css" />
@@ -50,9 +50,9 @@ const getLoginTemplate = () => {
                         <a class="nav-link" href="/settings"> <i class="ion-gear-a"></i>&nbsp;Settings </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/profile/eric-simons">
+                        <a class="nav-link" href="/profile/${username}">
                             <img src="" class="user-pic" />
-                            Eric Simons
+                            ${username}
                         </a>
                     </li>
                 </ul>
@@ -72,7 +72,7 @@ class RealNavbar extends HTMLElement {
     }
 
     connectedCallback() {
-        console.log('real navbar  connectedCallback()')
+        console.log('real navbar  connectedCallback()');
     }
 
     findElements() {
@@ -112,6 +112,12 @@ class RealNavbar extends HTMLElement {
             this.router.render('login');
         } else if (evtTarget.href.includes('register')) {
             this.router.render('register');
+        } else if (evtTarget.href.includes('editor')) {
+            this.router.render('editor');
+        } else if (evtTarget.href.includes('settings')) {
+            this.router.render('settings');
+        } else if (evtTarget.href.includes('profile')) {
+            this.router.render('profile');
         } else {
             this.router.render('home');
         }
@@ -121,8 +127,7 @@ class RealNavbar extends HTMLElement {
         const loginUser = realStore.getUser();
         console.log('real-navbar::render(): loginUser:', loginUser);
         if (loginUser) {
-            this.shadowRoot.innerHTML = getLoginTemplate();
-            console.log('real-navbar::render(): this.shadowRoot.innerHTML:', this.shadowRoot.innerHTML);
+            this.shadowRoot.innerHTML = getLoginTemplate(loginUser.user.username);
 
             this.findElements();
             this.setEventHandler();

@@ -1,6 +1,9 @@
 import {HomePage} from "../pages/home-page.js";
 import {LoginPage} from "../pages/login-page.js";
 import {RegisterPage} from "../pages/register-page.js";
+import {EditorPage} from "../pages/editor-page.js";
+import {SettingsPage} from "../pages/settings-page.js";
+import {ProfilePage} from "../pages/profile-page.js";
 
 const style = `<style>
         
