@@ -14,7 +14,7 @@ const getTemplate = (article) => {
         
         <div class="article-preview">
             <div class="article-meta">
-                <a href="/profile/${username}"><img src="http://i.imgur.com/Qr71crq.jpg"/></a>
+                <a href="/profile/${username}"><img src=${article.author.image}></a>
                 <div class="info">
                     <a href="/profile/${username}" class="author">${username}</a>
                     <span class="date">${article.createdAt}</span>
