@@ -1,4 +1,4 @@
-import {registerUserApi} from "../services/api.js";
+import {realApi} from "../services/real-api.js";
 import {RealNavbar} from "../components/real-navbar.js";
 
 
@@ -76,7 +76,7 @@ class RegisterPage extends HTMLElement {
         const user = {username, email, password};
         console.log('clickSighup user : ', user);
 
-        registerUserApi(user);
+        realApi.registerUserApi(user);
 
         const realNavbar = new RealNavbar();
         realNavbar.render();

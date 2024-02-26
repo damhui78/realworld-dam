@@ -1,6 +1,6 @@
-import {loginApi} from "../services/api.js";
+import {realApi} from "../services/real-api.js";
 import {RealNavbar} from "../components/real-navbar.js";
-import {saveUser} from "../services/store.js";
+import {realStore} from "../services/real-store.js";
 
 const style = `<style>
         
@@ -69,9 +69,9 @@ class LoginPage extends HTMLElement {
         const email = this.shadowRoot.querySelector('#email').value;
         const password = this.shadowRoot.querySelector('#password').value;
         const user = {email, password};
-        const loginUser = await loginApi(user);
+        const loginUser = await realApi.loginApi(user);
         console.log('clickSignin loginUser : ', loginUser);
-        saveUser(loginUser);
+        realStore.saveUser(loginUser);
 
         const realNavbar = new RealNavbar();
         realNavbar.render();

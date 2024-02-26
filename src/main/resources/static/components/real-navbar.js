@@ -1,7 +1,4 @@
-// import {iconCdn} from "../services/icon-cdn.js";
-// import {apiGetProfile} from "../services/api.js";
-// import {store} from "../services/store.js";
-import {getUser} from "../services/store.js";
+import {realStore} from "../services/real-store.js";
 
 const style = `<style>
     .aaa {
@@ -111,7 +108,7 @@ class RealNavbar extends HTMLElement {
     }
 
     render(evtTarget) {
-        const loginUser = getUser();
+        const loginUser = realStore.getUser();
         console.log('real-navbar::render(): loginUser:', loginUser);
         if (loginUser) {
             this.shadowRoot.innerHTML = getLoginTemplate();

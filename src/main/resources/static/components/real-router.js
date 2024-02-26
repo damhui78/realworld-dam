@@ -17,7 +17,7 @@ const getTemplate = () => {
     `;
 }
 
-class realRouter extends HTMLElement {
+class RealRouter extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
@@ -45,5 +45,5 @@ class realRouter extends HTMLElement {
     }
 }
 
-customElements.define('real-router', realRouter);
-export {realRouter}
+customElements.define('real-router', RealRouter);
+export {RealRouter}
