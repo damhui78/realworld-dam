@@ -35,8 +35,9 @@ class RealApi {
         return this.postApi('/api/users/login', {user});
     }
 
-    getArticles = () => {
-        return this.getApi('/api/articles');
+    getArticles = (terms) => {
+        const url = terms ? '/api/articles?' + terms : '/api/articles';
+        return this.getApi(url);
     }
 
     getTags = () => {

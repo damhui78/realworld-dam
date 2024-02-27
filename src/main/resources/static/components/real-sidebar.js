@@ -1,4 +1,5 @@
 import {realApi} from "../services/real-api.js";
+import realActions from "../services/real-actions.js";
 
 const style = `<style>
         
@@ -34,6 +35,24 @@ class RealSidebar extends HTMLElement {
         const tags = data.tags;
         console.log('real-sidebar::connectedCallback(): tags:', tags);
         this.shadowRoot.innerHTML = getTemplate(tags);
+
+        this.findElements();
+        this.setEventHandler();
+    }
+
+    findElements() {
+        this.aLinks = this.shadowRoot.querySelectorAll('a');
+    }
+
+    setEventHandler() {
+        this.aLinks.forEach(item => item.addEventListener('click', this.searchTag));
+    }
+
+    searchTag(evt) {
+        evt.preventDefault();
+
+        console.log('real-sidebar::searchTag(): evt.target.innerText:', evt.target.innerText);
+        realActions.addAction({type: 'tag', value: evt.target.innerText});
     }
 }
 
