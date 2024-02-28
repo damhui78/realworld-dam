@@ -1,3 +1,5 @@
+import {realApi} from "../services/real-api.js";
+
 const style = `<style>
         
 </style>`;
@@ -18,10 +20,10 @@ const getTemplate = () => {
                 <form>
                   <fieldset>
                     <fieldset class="form-group">
-                      <input type="text" class="form-control form-control-lg" placeholder="Article Title" />
+                      <input id="title" type="text" class="form-control form-control-lg" placeholder="Article Title" />
                     </fieldset>
                     <fieldset class="form-group">
-                      <input type="text" class="form-control" placeholder="What's this article about?" />
+                      <input id="description" type="text" class="form-control" placeholder="What's this article about?" />
                     </fieldset>
                     <fieldset class="form-group">
                       <textarea
@@ -31,9 +33,8 @@ const getTemplate = () => {
                       ></textarea>
                     </fieldset>
                     <fieldset class="form-group">
-                      <input type="text" class="form-control" placeholder="Enter tags" />
+                      <input id="input-tag" type="text" class="form-control" placeholder="Enter tags" />
                       <div class="tag-list">
-                        <span class="tag-default tag-pill"> <i class="ion-close-round"></i> tag </span>
                       </div>
                     </fieldset>
                     <button class="btn btn-lg pull-xs-right btn-primary" type="button">
@@ -65,11 +66,46 @@ class EditorPage extends HTMLElement {
     }
 
     findElements() {
-
+        this.inputTag = this.shadowRoot.querySelector('#input-tag');
+        this.btnPublish = this.shadowRoot.querySelector('button');
     }
 
     setEventHandler() {
+        this.inputTag.addEventListener('keyup', this.addTag);
+        this.btnPublish.addEventListener('click', this.saveArticle);
+    }
 
+    addTag = (evt) => {
+        if (evt.key !== 'Enter') return;
+
+        const divTagList = this.shadowRoot.querySelector('.tag-list');
+        divTagList.innerHTML += `<span class="tag-default tag-pill"> <i class="ion-close-round"></i>${evt.target.value}</span>`;
+        divTagList.querySelectorAll('span').forEach(item => item.addEventListener('click', this.delTag));
+
+        evt.target.value = '';
+    }
+    delTag = (evt) => {
+        console.log('editor-page::delTag(): evt.target():', evt.target);
+        evt.target.remove();
+    }
+
+    saveArticle = async () => {
+        const title = this.shadowRoot.querySelector('#title').value;
+        const description = this.shadowRoot.querySelector('#description').value;
+        const body = this.shadowRoot.querySelector('textarea').value;
+        const tagList = Array.from(this.shadowRoot.querySelectorAll('span')).map(item => item.innerText);
+
+        const article = {
+            title,
+            description,
+            body,
+            tagList
+        };
+        console.log('editor-page::saveArticle(): article:', article);
+        await realApi.saveArticle(article);
+
+        const realNavbar = document.querySelector('real-navbar');
+        realNavbar.renderHome();
     }
 
     render() {

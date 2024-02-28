@@ -105,8 +105,7 @@ class RealNavbar extends HTMLElement {
     }
 
     render(evtTarget) {
-        this.alinks.forEach(item => item.classList.remove('active'));
-        evtTarget.classList.add('active');
+        this.markCurrentNavigation(evtTarget);
 
         if (evtTarget.href.includes('login')) {
             this.router.render('login');
@@ -133,12 +132,20 @@ class RealNavbar extends HTMLElement {
             this.setEventHandler();
         }
 
+        this.renderHome();
+    }
+
+    renderHome() {
         const homeLink = this.shadowRoot.querySelector('#homeLink');
 
-        this.alinks.forEach(item => item.classList.remove('active'));
-        homeLink.classList.add('active');
+        this.markCurrentNavigation(homeLink);
 
         this.router.render('home');
+    }
+
+    markCurrentNavigation (target) {
+        this.alinks.forEach(item => item.classList.remove('active'));
+        target.classList.add('active');
     }
 }
 customElements.define('real-navbar', RealNavbar);

@@ -1,3 +1,5 @@
+import {realStore} from "./real-store.js";
+
 class RealApi {
 
     constructor() {
@@ -6,12 +8,12 @@ class RealApi {
     postApi = (url, param) => {
         console.log('api::postApi(): url:', url);
         console.log('api::postApi(): param : ', param);
+        const headers = this.makeHeaders();
+        headers['Content-Type'] = 'application/json';
 
         return fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers,
             body: JSON.stringify(param)
         })
             .then(response => response.json())
@@ -20,10 +22,18 @@ class RealApi {
 
     getApi = (url) => {
         console.log('api::getApi(): url:', url);
+        const headers = this.makeHeaders();
 
-        return fetch(url)
+        return fetch(url, {
+            headers
+        })
             .then(response => response.json())
             .catch(console.error);
+    }
+
+    makeHeaders = () => {
+        const token = realStore.getUser()?.user.token;
+        return token ? {Authorization: 'Token ' + token} : {};
     }
 
 
@@ -42,6 +52,10 @@ class RealApi {
 
     getTags = () => {
         return this.getApi('/api/tags');
+    }
+
+    saveArticle = (article) => {
+        return this.postApi('/api/articles', {article})
     }
 
 }
