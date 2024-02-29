@@ -364,11 +364,6 @@ label {
     margin-bottom: .5rem
 }
 
-button:focus {
-    outline: 1px dotted;
-    outline: 5px auto -webkit-focus-ring-color
-}
-
 input, button, select, textarea {
     margin: 0;
     line-height: inherit;
@@ -2485,12 +2480,6 @@ input[type=radio]:disabled, input[type=radio].disabled, input[type=checkbox]:dis
     border-radius: .25rem
 }
 
-.btn:focus, .btn.focus, .btn:active:focus, .btn:active.focus, .btn.active:focus, .btn.active.focus {
-    outline: thin dotted;
-    outline: 5px auto -webkit-focus-ring-color;
-    outline-offset: -2px
-}
-
 .btn:focus, .btn:hover {
     text-decoration: none
 }
@@ -2772,26 +2761,16 @@ a.btn.disabled, fieldset[disabled] a.btn {
     border-color: #5cb85c
 }
 
-.btn-outline-primary:focus, .btn-outline-primary.focus {
-    color: #fff;
-    background-color: #5cb85c;
-    border-color: #5cb85c
-}
-
 .btn-outline-primary:active, .btn-outline-primary.active, .open > .btn-outline-primary.dropdown-toggle {
     color: #fff;
     background-color: #5cb85c;
     border-color: #5cb85c
 }
 
-.btn-outline-primary:active:hover, .btn-outline-primary:active:focus, .btn-outline-primary:active.focus, .btn-outline-primary.active:hover, .btn-outline-primary.active:focus, .btn-outline-primary.active.focus, .open > .btn-outline-primary.dropdown-toggle:hover, .open > .btn-outline-primary.dropdown-toggle:focus, .open > .btn-outline-primary.dropdown-toggle.focus {
+.btn-outline-primary:active:hover, .btn-outline-primary.active:hover, .open > .btn-outline-primary.dropdown-toggle:hover {
     color: #fff;
     background-color: #398439;
     border-color: #2d672d
-}
-
-.btn-outline-primary.disabled:focus, .btn-outline-primary.disabled.focus, .btn-outline-primary:disabled:focus, .btn-outline-primary:disabled.focus {
-    border-color: #a3d7a3
 }
 
 .btn-outline-primary.disabled:hover, .btn-outline-primary:disabled:hover {

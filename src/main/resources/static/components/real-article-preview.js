@@ -1,25 +1,25 @@
 import {realStore} from "../services/real-store.js";
+import {realApi} from "../services/real-api.js";
 
 const style = `<style>
         
 </style>`;
 
 const getTemplate = (article) => {
-    console.log('real-article-preview::getTemplate(): article:', article);
     const username = article.author.username
 
     return `
-        <link rel="stylesheet" href="//demo.productionready.io/main.css" />
+        <link rel="stylesheet" href="/css/real.css" />
         ${style}
         
         <div class="article-preview">
             <div class="article-meta">
-                <a href="/profile/${username}"><img src=${article.author.image}></a>
+                <a href="/profile/${username}"><img src="${article.author.image}"></a>
                 <div class="info">
                     <a href="/profile/${username}" class="author">${username}</a>
                     <span class="date">${article.createdAt}</span>
                 </div>
-                <button class="btn btn-outline-primary btn-sm pull-xs-right">
+                <button class="btn btn-outline-primary btn-sm pull-xs-right ${article.favorited ? 'active' : ''}">
                     <i class="ion-heart"></i> 29
                 </button>
             </div>
@@ -39,9 +39,9 @@ class RealArticlePreview extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.loginUser = realStore.getUser();
         this.slug = this.getAttribute('slug');
         const article = realStore.getArticleBySlug(this.slug);
-        console.log('real-article-preview::constructor(): article:', article);
 
         this.shadowRoot.innerHTML = getTemplate(article);
 
@@ -50,13 +50,33 @@ class RealArticlePreview extends HTMLElement {
     }
 
     connectedCallback() {
-        console.log('real article preview  connectedCallback()')
+        console.log('real article preview  connectedCallback()');
     }
 
     findElements() {
+        this.btnFavorite = this.shadowRoot.querySelector('button');
     }
 
     setEventHandler() {
+        this.btnFavorite.addEventListener('click', this.clickFavoriteArticle);
+    }
+
+    clickFavoriteArticle = async (evt) => {
+        evt.preventDefault();
+
+        if (!this.loginUser) {
+            const realNavbar = document.querySelector('real-navbar');
+            realNavbar.goLogin();
+            return;
+        }
+
+        const evtTarget = evt.target;
+        if (evtTarget.classList.contains('active')) {
+            await realApi.unFavoriteArticle(this.slug);
+        } else {
+            await realApi.favoriteArticle(this.slug);
+        }
+        evtTarget.classList.toggle('active');
     }
 
     render() {

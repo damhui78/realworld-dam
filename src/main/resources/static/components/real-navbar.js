@@ -132,7 +132,13 @@ class RealNavbar extends HTMLElement {
         this.router.render('home');
     }
 
-    markCurrentNavigation (target) {
+    goLogin() {
+        const loginLink = this.shadowRoot.querySelector('#loginLink');
+        this.markCurrentNavigation(loginLink);
+        this.router.render('login');
+    }
+
+    markCurrentNavigation(target) {
         this.alinks.forEach(item => item.classList.remove('active'));
         target.classList.add('active');
     }

@@ -19,14 +19,21 @@ const putApi = (url, param) => {
     return postOrPutApi('PUT', url, param);
 }
 
-const getApi = (url) => {
+const getOrDeletetApi = (method, url) => {
     const headers = makeHeaders();
 
     return fetch(url, {
+        method,
         headers
     })
         .then(response => response.json())
         .catch(console.error);
+}
+const deleteApi = (url) => {
+    return getOrDeletetApi('DELETE', url);
+}
+const getApi = (url) => {
+    return getOrDeletetApi('GET', url);
 }
 
 const makeHeaders = () => {
@@ -66,7 +73,15 @@ class RealApi {
     }
 
     saveArticle = (article) => {
-        return postApi('/api/articles', {article})
+        return postApi('/api/articles', {article});
+    }
+
+    favoriteArticle = (slug) => {
+        return postApi(`/api/articles/${slug}/favorite`);
+    }
+
+    unFavoriteArticle = (slug) => {
+        return deleteApi(`/api/articles/${slug}/favorite`);
     }
 
 }
