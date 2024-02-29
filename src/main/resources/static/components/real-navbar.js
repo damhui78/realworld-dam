@@ -76,7 +76,6 @@ class RealNavbar extends HTMLElement {
     }
 
     findElements() {
-        // this.btn = this.shadowRoot.querySelector('.btn');
         this.alinks = Array.from(this.shadowRoot.querySelectorAll('a'));
         this.router = document.querySelector('real-router');
         console.log('nav find router : ', this.router);
@@ -84,12 +83,7 @@ class RealNavbar extends HTMLElement {
 
     setEventHandler() {
         console.log('real-navbar::setEventHandler(): 1:', 1);
-        // this.btn.addEventListener('click', this.clickBtn);
         this.alinks.forEach(item => item.addEventListener('click', this.clickAlink));
-    }
-
-    clickBtn = (evt) => {
-        console.log('clicked', evt);
     }
 
     clickAlink = (evt) => {
@@ -101,12 +95,11 @@ class RealNavbar extends HTMLElement {
         console.log('clickAlink target.href : ', evt.target.href);
         // console.log('test : ', evt.target.closest('a'));
 
-        this.render(evt.target);
+        this.markCurrentNavigation(evt.target);
+        this.sendRouter(evt.target);
     }
 
-    render(evtTarget) {
-        this.markCurrentNavigation(evtTarget);
-
+    sendRouter(evtTarget) {
         if (evtTarget.href.includes('login')) {
             this.router.render('login');
         } else if (evtTarget.href.includes('register')) {
@@ -122,24 +115,20 @@ class RealNavbar extends HTMLElement {
         }
     }
 
-    renderLogin() {
+    render() {
         const loginUser = realStore.getUser();
         console.log('real-navbar::render(): loginUser:', loginUser);
-        if (loginUser) {
-            this.shadowRoot.innerHTML = getLoginTemplate(loginUser.user.username);
+        this.shadowRoot.innerHTML = loginUser ? getLoginTemplate(loginUser.user.username) : getTemplate();
 
-            this.findElements();
-            this.setEventHandler();
-        }
+        this.findElements();
+        this.setEventHandler();
 
         this.renderHome();
     }
 
     renderHome() {
         const homeLink = this.shadowRoot.querySelector('#homeLink');
-
         this.markCurrentNavigation(homeLink);
-
         this.router.render('home');
     }
 

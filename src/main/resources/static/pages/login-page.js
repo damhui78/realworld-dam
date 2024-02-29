@@ -73,7 +73,7 @@ class LoginPage extends HTMLElement {
         realStore.saveUser(loginUser);
 
         const realNavbar = document.querySelector('real-navbar');
-        realNavbar.renderLogin();
+        realNavbar.render();
     }
 
     render() {

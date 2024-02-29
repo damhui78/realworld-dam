@@ -10,6 +10,9 @@ class RealStore extends Map {
     getUser = () => {
         return this.get('user');
     }
+    deleteUser = () => {
+        this.delete('user');
+    }
 
     saveArticles = (articles) => {
         this.set('articles', articles);

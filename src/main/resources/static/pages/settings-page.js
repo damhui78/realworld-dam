@@ -1,3 +1,5 @@
+import {realStore} from "../services/real-store.js";
+
 const style = `<style>
         
 </style>`;
@@ -42,11 +44,11 @@ const getTemplate = () => {
                         placeholder="New Password"
                       />
                     </fieldset>
-                    <button class="btn btn-lg btn-primary pull-xs-right">Update Settings</button>
+                    <button id="update-settings" class="btn btn-lg btn-primary pull-xs-right">Update Settings</button>
                   </fieldset>
                 </form>
                 <hr />
-                <button class="btn btn-outline-danger">Or click here to logout.</button>
+                <button id="logout" class="btn btn-outline-danger">Or click here to logout.</button>
               </div>
             </div>
           </div>
@@ -71,11 +73,24 @@ class SettingsPage extends HTMLElement {
     }
 
     findElements() {
-
+        this.btnUpdateSettings = this.shadowRoot.querySelector('#update-settings');
+        this.btnLogout = this.shadowRoot.querySelector('#logout');
     }
 
     setEventHandler() {
+        this.btnUpdateSettings.addEventListener('click', this.updateSettings);
+        this.btnLogout.addEventListener('click', this.logout);
+    }
 
+    updateSettings = () => {
+
+    }
+
+    logout = () => {
+        realStore.deleteUser();
+
+        const realNavbar = document.querySelector('real-navbar');
+        realNavbar.render();
     }
 
     render() {

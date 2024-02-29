@@ -77,7 +77,7 @@ class RegisterPage extends HTMLElement {
         realApi.registerUserApi(user);
 
         const realNavbar = document.querySelector('real-navbar');
-        realNavbar.renderLogin();
+        realNavbar.render();
     }
 
     render() {
