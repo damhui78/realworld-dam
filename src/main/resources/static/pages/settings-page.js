@@ -1,4 +1,5 @@
 import {realStore} from "../services/real-store.js";
+import {realApi} from "../services/real-api.js";
 
 const style = `<style>
         
@@ -22,23 +23,23 @@ const getTemplate = () => {
                 <form>
                   <fieldset>
                     <fieldset class="form-group">
-                      <input class="form-control" type="text" placeholder="URL of profile picture" />
+                      <input id="user-image-url" class="form-control" type="text" placeholder="URL of profile picture" />
                     </fieldset>
                     <fieldset class="form-group">
-                      <input class="form-control form-control-lg" type="text" placeholder="Your Name" />
+                      <input id="user-name" class="form-control form-control-lg" type="text" placeholder="Your Name" readonly />
                     </fieldset>
                     <fieldset class="form-group">
-                      <textarea
+                      <textarea id="user-bio"
                         class="form-control form-control-lg"
                         rows="8"
                         placeholder="Short bio about you"
                       ></textarea>
                     </fieldset>
                     <fieldset class="form-group">
-                      <input class="form-control form-control-lg" type="text" placeholder="Email" />
+                      <input id="user-email" class="form-control form-control-lg" type="text" placeholder="Email" readonly />
                     </fieldset>
                     <fieldset class="form-group">
-                      <input
+                      <input id="user-password"
                         class="form-control form-control-lg"
                         type="password"
                         placeholder="New Password"
@@ -66,13 +67,22 @@ class SettingsPage extends HTMLElement {
         this.setEventHandler();
     }
 
-    connectedCallback() {
+    async connectedCallback() {
         console.log('settings page  connectedCallback()');
-
-        this.render();
+        const data = await realApi.getLoginUser();
+        const loginUser = data?.user;
+        this.userImageUrl.value = loginUser?.image;
+        this.userName.value = loginUser?.username;
+        this.userBio.value = loginUser?.bio;
+        this.userEmail.value = loginUser?.email;
     }
 
     findElements() {
+        this.userImageUrl = this.shadowRoot.querySelector('#user-image-url');
+        this.userName = this.shadowRoot.querySelector('#user-name');
+        this.userBio = this.shadowRoot.querySelector('#user-bio');
+        this.userEmail = this.shadowRoot.querySelector('#user-email');
+        this.userPassword = this.shadowRoot.querySelector('#user-password');
         this.btnUpdateSettings = this.shadowRoot.querySelector('#update-settings');
         this.btnLogout = this.shadowRoot.querySelector('#logout');
     }
@@ -82,11 +92,25 @@ class SettingsPage extends HTMLElement {
         this.btnLogout.addEventListener('click', this.logout);
     }
 
-    updateSettings = () => {
+    updateSettings = async (evt) => {
+        evt.preventDefault();
 
+        const user = {
+            image: this.userImageUrl.value,
+            bio: this.userBio.value,
+            password: this.userPassword.value,
+        };
+        console.log('settings-page::updateSettings(): user:', user);
+
+        await realApi.updateUser(user);
+
+        const realNavbar = document.querySelector('real-navbar');
+        realNavbar.goHome();
     }
 
-    logout = () => {
+    logout = (evt) => {
+        evt.preventDefault();
+
         realStore.deleteUser();
 
         const realNavbar = document.querySelector('real-navbar');

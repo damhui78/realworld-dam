@@ -4,6 +4,7 @@ import com.lodny.realworlddam.entity.dto.RegisterUserRequest;
 import com.lodny.realworlddam.entity.dto.UpdateUserRequest;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -38,10 +39,14 @@ public class RealWorldUser {
 
     public void update(final UpdateUserRequest updateUserRequest) {
         Optional.ofNullable(updateUserRequest.username())
-                .ifPresent(s -> this.username = s);
+                .ifPresent(s -> {
+                    if (StringUtils.hasText(s.trim())) this.username = s;
+                });
 
         Optional.ofNullable(updateUserRequest.password())
-                .ifPresent(s -> this.password = s);
+                .ifPresent(s -> {
+                    if (StringUtils.hasText(s.trim())) this.password = s;
+                });
 
         this.bio = updateUserRequest.bio();
         this.image = updateUserRequest.image();

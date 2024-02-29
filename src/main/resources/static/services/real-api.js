@@ -1,61 +1,72 @@
 import {realStore} from "./real-store.js";
 
+const postOrPutApi = (method, url, param) => {
+    const headers = makeHeaders();
+    headers['Content-Type'] = 'application/json';
+
+    return fetch(url, {
+        method,
+        headers,
+        body: JSON.stringify(param)
+    })
+        .then(response => response.json())
+        .catch(console.error);
+}
+const postApi = (url, param) => {
+    return postOrPutApi('POST', url, param);
+}
+const putApi = (url, param) => {
+    return postOrPutApi('PUT', url, param);
+}
+
+const getApi = (url) => {
+    const headers = makeHeaders();
+
+    return fetch(url, {
+        headers
+    })
+        .then(response => response.json())
+        .catch(console.error);
+}
+
+const makeHeaders = () => {
+    const token = realStore.getUser()?.user.token;
+    return token ? {Authorization: 'Token ' + token} : {};
+}
+
 class RealApi {
 
     constructor() {
     }
 
-    postApi = (url, param) => {
-        console.log('api::postApi(): url:', url);
-        console.log('api::postApi(): param : ', param);
-        const headers = this.makeHeaders();
-        headers['Content-Type'] = 'application/json';
-
-        return fetch(url, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(param)
-        })
-            .then(response => response.json())
-            .catch(console.error);
-    }
-
-    getApi = (url) => {
-        console.log('api::getApi(): url:', url);
-        const headers = this.makeHeaders();
-
-        return fetch(url, {
-            headers
-        })
-            .then(response => response.json())
-            .catch(console.error);
-    }
-
-    makeHeaders = () => {
-        const token = realStore.getUser()?.user.token;
-        return token ? {Authorization: 'Token ' + token} : {};
-    }
-
 
     registerUserApi = (user) => {
-        return this.postApi('/api/users', {user});
+        return postApi('/api/users', {user});
     }
 
     loginApi = (user) => {
-        return this.postApi('/api/users/login', {user});
+        return postApi('/api/users/login', {user});
+    }
+
+    getLoginUser = () => {
+        return getApi('/api/user');
+    }
+
+    updateUser = (user) => {
+        return putApi('/api/user', {user});
     }
 
     getArticles = (terms) => {
         const url = terms ? '/api/articles?' + terms : '/api/articles';
-        return this.getApi(url);
+        return getApi(url);
     }
 
     getTags = () => {
-        return this.getApi('/api/tags');
+        return getApi('/api/tags');
     }
 
     saveArticle = (article) => {
-        return this.postApi('/api/articles', {article})
+        return postApi('/api/articles', {article})
     }
 
 }

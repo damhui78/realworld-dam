@@ -123,10 +123,10 @@ class RealNavbar extends HTMLElement {
         this.findElements();
         this.setEventHandler();
 
-        this.renderHome();
+        this.goHome();
     }
 
-    renderHome() {
+    goHome() {
         const homeLink = this.shadowRoot.querySelector('#homeLink');
         this.markCurrentNavigation(homeLink);
         this.router.render('home');

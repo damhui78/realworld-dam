@@ -105,7 +105,7 @@ class EditorPage extends HTMLElement {
         await realApi.saveArticle(article);
 
         const realNavbar = document.querySelector('real-navbar');
-        realNavbar.renderHome();
+        realNavbar.goHome();
     }
 
     render() {

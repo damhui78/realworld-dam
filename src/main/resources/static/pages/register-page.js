@@ -65,7 +65,7 @@ class RegisterPage extends HTMLElement {
         this.shadowRoot.querySelector('button').addEventListener('click', this.clickSignup);
     }
 
-    clickSignup = (evt) => {
+    clickSignup = async (evt) => {
         evt.preventDefault();
 
         const username = this.shadowRoot.querySelector('#username').value;
@@ -74,7 +74,7 @@ class RegisterPage extends HTMLElement {
         const user = {username, email, password};
         console.log('clickSighup user : ', user);
 
-        realApi.registerUserApi(user);
+        await realApi.registerUserApi(user);
 
         const realNavbar = document.querySelector('real-navbar');
         realNavbar.render();
