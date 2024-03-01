@@ -114,7 +114,10 @@ public class ArticleService {
             list.add(getArticleResponse(queryResult));
         }
 
-        return new ArticlesResponse(list, list.size());
+        return new ArticlesResponse(list,
+                list.size(),
+                articles.getTotalPages(),
+                articles.getNumber());
     }
 
     public ArticlesResponse getFeedArticles(SearchArticleRequest searchArticleRequest, RealWorldUser loginUser) {
@@ -135,7 +138,10 @@ public class ArticleService {
             list.add(getArticleResponse(queryResult));
         }
 
-        return new ArticlesResponse(list, list.size());
+        return new ArticlesResponse(list,
+                list.size(),
+                articles.getTotalPages(),
+                articles.getNumber());
     }
 
     public ArticleResponse createFavorite(String slug, RealWorldUser loginUser) {

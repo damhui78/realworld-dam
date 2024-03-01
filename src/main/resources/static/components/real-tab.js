@@ -25,12 +25,6 @@ const getTemplate = () => {
         <div id="article-preview-list"></div>
         
         <ul class="pagination">
-            <li class="page-item active">
-                <a class="page-link" href="">1</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="">2</a>
-            </li>
         </ul>
     `;
 }
@@ -48,10 +42,14 @@ class RealTab extends HTMLElement {
     async connectedCallback() {
         console.log('real tab  connectedCallback()');
 
+        this.terms = '';
         const data = await realApi.getArticles();
+        console.log('real-tab::connectedCallback(): data:', data);
+        
         realStore.saveArticles(data.articles);
 
         this.render(data.articles);
+        this.setPagination(data.totalPages, data.currentPageNo);
         this.setTabEvent('.nav-link');
 
         realActions.addTagCallback(this.callbackTag);
@@ -61,6 +59,7 @@ class RealTab extends HTMLElement {
         this.divYourFeed = this.shadowRoot.querySelector('#your-feed');
         this.divArticles = this.shadowRoot.querySelector('#article-preview-list');
         this.divSearch = this.shadowRoot.querySelector('#search-feed');
+        this.ulPagination = this.shadowRoot.querySelector('.pagination');
     }
 
     setEventHandler() {
@@ -88,9 +87,17 @@ class RealTab extends HTMLElement {
         if(target) target.classList.add('active');
     }
     async searchArticles(terms) {
+        this.terms = terms;
         const data = await realApi.getArticles(terms);
+        console.log('real-tab::searchArticles(): data:', data);
+        
+        this.setArticles(data);
+    }
+
+    setArticles(data) {
         realStore.saveArticles(data.articles);
         this.divArticles.innerHTML = data.articles.map(article => `<real-article-preview slug="${article.slug}"></real-article-preview>`).join('');
+        this.setPagination(data.totalPages, data.currentPageNo);
     }
 
 
@@ -103,6 +110,21 @@ class RealTab extends HTMLElement {
         }
 
         this.divArticles.innerHTML = articles.map(article => `<real-article-preview slug="${article.slug}"></real-article-preview>`).join('');
+    }
+
+    setPagination = (totalPages, currentPageNo) => {
+        const arr = Array.from({length: totalPages}, (v, index) => index);
+        this.ulPagination.innerHTML = arr.map(i => `<li class="page-item ${currentPageNo===i ? 'active' : ''}"><a class="page-link" href="">${i + 1}</a></li>`).join('');
+
+        const aPageLink = this.shadowRoot.querySelectorAll('.page-link');
+        aPageLink.forEach(item => item.addEventListener('click', this.movePage));
+    }
+    movePage = async (evt) => {
+        evt.preventDefault();
+
+        const pageNo = evt.target.innerText - 1;
+        const data = await realApi.getArticles(this.terms, pageNo);
+        this.setArticles(data);
     }
 
     callbackTag = (action) => {

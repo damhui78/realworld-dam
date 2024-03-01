@@ -63,8 +63,14 @@ class RealApi {
         return putApi('/api/user', {user});
     }
 
-    getArticles = (terms) => {
-        const url = terms ? '/api/articles?' + terms : '/api/articles';
+    getArticles = (terms, pageNo = 0) => {
+        console.log('real-api::getArticles(): terms:', terms);
+        console.log('real-api::getArticles(): pageNo:', pageNo);
+        
+        const paging = `limit=2&offset=${pageNo*2}`;
+        const url = terms ? `/api/articles?${paging}&${terms}` : `/api/articles?${paging}`;
+        console.log('real-api::getArticles(): url:', url);
+        
         return getApi(url);
     }
 
