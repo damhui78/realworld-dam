@@ -52,7 +52,7 @@ class RealSidebar extends HTMLElement {
         evt.preventDefault();
 
         console.log('real-sidebar::searchTag(): evt.target.innerText:', evt.target.innerText);
-        realActions.addAction({type: 'tag', value: evt.target.innerText});
+        realActions.addAction('tag', evt.target.innerText);
     }
 }
 

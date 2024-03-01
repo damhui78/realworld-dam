@@ -1,15 +1,20 @@
+const callbackMap = new Map();
+
 class RealActions {
     constructor() {
     }
 
-    addAction(action) {
-        console.log('real-actions::addAction(): action:', action);
-        this.tagCallback(action);
+    addAction(type, value) {
+        console.log('real-actions::addAction(): type:', type);
+        console.log('real-actions::addAction(): value:', value);
+        const cb = callbackMap.get(type);
+        cb && cb(value);
     }
 
-    addTagCallback(cb) {
-        console.log('real-actions::addTagCallback(): cb:', cb);
-        this.tagCallback = cb;
+    addCallback(type, cb) {
+        console.log('real-actions::addCallback(): type:', type);
+        console.log('real-actions::addCallback(): cb:', cb);
+        callbackMap.set(type, cb);
     }
 }
 

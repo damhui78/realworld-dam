@@ -2,6 +2,7 @@ import {RealArticlePreview} from "./real-article-preview.js";
 import {realStore} from "../services/real-store.js";
 import {realApi} from "../services/real-api.js";
 import realActions from "../services/real-actions.js";
+import {RealPagination} from "./real-pagination.js";
 
 const style = `<style>
         
@@ -24,8 +25,7 @@ const getTemplate = () => {
         
         <div id="article-preview-list"></div>
         
-        <ul class="pagination">
-        </ul>
+        <real-pagination></real-pagination>
     `;
 }
 
@@ -49,17 +49,18 @@ class RealTab extends HTMLElement {
         realStore.saveArticles(data.articles);
 
         this.render(data.articles);
-        this.setPagination(data.totalPages, data.currentPageNo);
+        this.pagination = this.shadowRoot.querySelector('real-pagination');
+        this.pagination.setPagination(data.totalPages, data.currentPageNo);
         this.setTabEvent('.nav-link');
 
-        realActions.addTagCallback(this.callbackTag);
+        realActions.addCallback('tag', this.callbackTag);
+        realActions.addCallback('articlePaging', this.callbackArticlePaging);
     }
 
     findElements() {
         this.divYourFeed = this.shadowRoot.querySelector('#your-feed');
         this.divArticles = this.shadowRoot.querySelector('#article-preview-list');
         this.divSearch = this.shadowRoot.querySelector('#search-feed');
-        this.ulPagination = this.shadowRoot.querySelector('.pagination');
     }
 
     setEventHandler() {
@@ -97,7 +98,7 @@ class RealTab extends HTMLElement {
     setArticles(data) {
         realStore.saveArticles(data.articles);
         this.divArticles.innerHTML = data.articles.map(article => `<real-article-preview slug="${article.slug}"></real-article-preview>`).join('');
-        this.setPagination(data.totalPages, data.currentPageNo);
+        this.pagination.setPagination(data.totalPages, data.currentPageNo);
     }
 
 
@@ -112,27 +113,16 @@ class RealTab extends HTMLElement {
         this.divArticles.innerHTML = articles.map(article => `<real-article-preview slug="${article.slug}"></real-article-preview>`).join('');
     }
 
-    setPagination = (totalPages, currentPageNo) => {
-        const arr = Array.from({length: totalPages}, (v, index) => index);
-        this.ulPagination.innerHTML = arr.map(i => `<li class="page-item ${currentPageNo===i ? 'active' : ''}"><a class="page-link" href="">${i + 1}</a></li>`).join('');
-
-        const aPageLink = this.shadowRoot.querySelectorAll('.page-link');
-        aPageLink.forEach(item => item.addEventListener('click', this.movePage));
-    }
-    movePage = async (evt) => {
-        evt.preventDefault();
-
-        const pageNo = evt.target.innerText - 1;
-        const data = await realApi.getArticles(this.terms, pageNo);
-        this.setArticles(data);
-    }
-
-    callbackTag = (action) => {
-        console.log('real-tab::callbackTag(): action:', action);
+    callbackTag = (value) => {
         this.setTabUnderline();
-        this.divSearch.innerHTML = `<li class="nav-item"><a class="nav-link active" href="" data-terms="${action.type}=${action.value}">#${action.value}</a></li>`;
+        this.divSearch.innerHTML = `<li class="nav-item"><a class="nav-link active" href="" data-terms="tag=${value}">#${value}</a></li>`;
         this.setTabEvent('.nav-link.active');
-        this.searchArticles(`${action.type}=${action.value}`);
+        this.searchArticles(`tag=${value}`);
+    }
+
+    callbackArticlePaging = async (value) => {
+        const data = await realApi.getArticles(this.terms, value);
+        this.setArticles(data);
     }
 }
 
