@@ -1,4 +1,5 @@
 import {realStore} from "../services/real-store.js";
+import {iconCdn} from "../css/icon.js";
 
 const style = `<style>
            
@@ -6,7 +7,7 @@ const style = `<style>
 
 const getTemplate = () => {
     return `
-<!--        <link rel="stylesheet" href="//demo.productionready.io/main.css" />-->
+        ${iconCdn}
         <link rel="stylesheet" href="/css/real.css" />
         ${style}
         
@@ -31,7 +32,7 @@ const getTemplate = () => {
 }
 const getLoginTemplate = (username) => {
     return `
-<!--        <link rel="stylesheet" href="//demo.productionready.io/main.css" />-->
+        ${iconCdn}
         <link rel="stylesheet" href="/css/real.css" />
         ${style}
         

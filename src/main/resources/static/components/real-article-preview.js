@@ -1,14 +1,17 @@
 import {realStore} from "../services/real-store.js";
 import {realApi} from "../services/real-api.js";
+import {iconCdn} from "../css/icon.js";
+
 
 const style = `<style>
         
 </style>`;
 
 const getTemplate = (article) => {
-    const username = article.author.username
+    const username = article.author.username;
 
     return `
+        ${iconCdn}
         <link rel="stylesheet" href="/css/real.css" />
         ${style}
         
@@ -20,7 +23,7 @@ const getTemplate = (article) => {
                     <span class="date">${article.createdAt}</span>
                 </div>
                 <button class="btn btn-outline-primary btn-sm pull-xs-right ${article.favorited ? 'active' : ''}">
-                    <i class="ion-heart"></i> 29
+                    <i class="ion-heart"></i> ${article.favoritesCount}
                 </button>
             </div>
             <a href="/article/how-to-build-webapps-that-scale" class="preview-link">
@@ -71,12 +74,15 @@ class RealArticlePreview extends HTMLElement {
         }
 
         const evtTarget = evt.target;
-        if (evtTarget.classList.contains('active')) {
-            await realApi.unFavoriteArticle(this.slug);
-        } else {
-            await realApi.favoriteArticle(this.slug);
-        }
+
+        const result = evtTarget.classList.contains('active')
+            ? await realApi.unFavoriteArticle(this.slug)
+            : await realApi.favoriteArticle(this.slug);
+
         evtTarget.classList.toggle('active');
+
+        const btnFavorite = this.shadowRoot.querySelector('button');
+        btnFavorite.innerHTML = `<i class="ion-heart"></i> ${result.article.favoritesCount}`;
     }
 
     render() {
