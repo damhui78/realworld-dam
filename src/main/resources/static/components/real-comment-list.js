@@ -2,7 +2,6 @@ import {realApi} from "../services/real-api.js";
 import realActions from "../services/real-actions.js";
 import {RealCommentCard} from "./real-comment-card.js";
 import {iconCdn} from "../css/icon.js";
-import {realStore} from "../services/real-store";
 
 const style = `<style>
         
@@ -55,12 +54,6 @@ class RealCommentList extends HTMLElement {
 
     setEventHandler() {
         this.aLinks.forEach(item => item.addEventListener('click', this.searchTag));
-    }
-
-    setArticles(data) {
-        realStore.saveArticles(data.articles);
-        this.divArticles.innerHTML = data.articles.map(article => `<real-article-preview slug="${article.slug}"></real-article-preview>`).join('');
-        this.pagination.setPagination(data.totalPages, data.currentPageNo);
     }
 }
 
