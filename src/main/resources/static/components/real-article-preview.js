@@ -58,10 +58,12 @@ class RealArticlePreview extends HTMLElement {
 
     findElements() {
         this.btnFavorite = this.shadowRoot.querySelector('button');
+        this.aArticleLink = this.shadowRoot.querySelector('.preview-link');
     }
 
     setEventHandler() {
         this.btnFavorite.addEventListener('click', this.clickFavoriteArticle);
+        this.aArticleLink.addEventListener('click', this.moveArticlePage);
     }
 
     clickFavoriteArticle = async (evt) => {
@@ -86,6 +88,14 @@ class RealArticlePreview extends HTMLElement {
     }
 
     render() {
+    }
+
+    moveArticlePage = (evt) => {
+        evt.preventDefault();
+        console.log('real-article-preview::moveArticlePage(): evt.target:', evt.target);
+
+        const realRouter = document.querySelector('real-router');
+        realRouter.render('article');
     }
 }
 
