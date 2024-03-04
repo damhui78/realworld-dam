@@ -1,12 +1,10 @@
-import realActions from "../services/real-actions.js";
+import {actionHandler} from "../services/action-handler.js";
 
 const style = `<style>
         
 </style>`;
 
-const getTemplate = (tags) => {
-    console.log('real-sidebar::getTemplate(): tags:', tags);
-
+const getTemplate = () => {
     return `
         <link rel="stylesheet" href="/css/real.css" />
         ${style}
@@ -18,30 +16,24 @@ const getTemplate = (tags) => {
 }
 
 class RealPagination extends HTMLElement {
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.shadowRoot.innerHTML = getTemplate();
     }
 
     connectedCallback() {
         console.log('real pagination  connectedCallback()');
-
-        this.shadowRoot.innerHTML = getTemplate();
-
-        this.findElements();
-        this.setEventHandler();
     }
-
-    findElements() {
-        this.ulPagination = this.shadowRoot.querySelector('.pagination');
-    }
-
-    setEventHandler() {
+    disconnectedCallback() {
+        console.log('real-sidebar::disconnectedCallback(): 0:', 0);
     }
 
     setPagination = (totalPages, currentPageNo) => {
         const arr = Array.from({length: totalPages}, (v, index) => index);
-        this.ulPagination.innerHTML = arr.map(i => `<li class="page-item ${currentPageNo===i ? 'active' : ''}"><a class="page-link" href="">${i + 1}</a></li>`).join('');
+        const ulPagination = this.shadowRoot.querySelector('.pagination');
+        ulPagination.innerHTML = arr.map(i => `<li class="page-item ${currentPageNo===i ? 'active' : ''}"><a class="page-link" href="">${i + 1}</a></li>`).join('');
 
         const aPageLink = this.shadowRoot.querySelectorAll('.page-link');
         aPageLink.forEach(item => item.addEventListener('click', this.movePage));
@@ -50,7 +42,7 @@ class RealPagination extends HTMLElement {
         evt.preventDefault();
 
         const pageNo = evt.target.innerText - 1;
-        realActions.addAction('articlePaging', pageNo);
+        actionHandler.addAction({type: 'movePage', data: {pageNo}});
     }
 
 }

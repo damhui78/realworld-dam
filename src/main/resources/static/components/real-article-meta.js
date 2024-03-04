@@ -1,14 +1,12 @@
-import {realApi} from "../services/real-api.js";
-import realActions from "../services/real-actions.js";
+import {iconCdn} from "../css/icon.js";
 
 const style = `<style>
         
 </style>`;
 
-const getTemplate = (meta) => {
-    console.log('real-article-meta::getTemplate(): meta:', meta);
-
+const getTemplate = () => {
     return `
+        ${iconCdn}
         <link rel="stylesheet" href="/css/real.css" />
         ${style}
         
@@ -38,34 +36,18 @@ const getTemplate = (meta) => {
 }
 
 class RealArticleMeta extends HTMLElement {
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-    }
-
-    async connectedCallback() {
-        console.log('real article meta  connectedCallback()');
-
         this.shadowRoot.innerHTML = getTemplate();
-
-        this.findElements();
-        this.setEventHandler();
     }
 
-    findElements() {
-        this.aLinks = this.shadowRoot.querySelectorAll('a');
+    connectedCallback() {
+    }
+    disconnectedCallback() {
     }
 
-    setEventHandler() {
-        this.aLinks.forEach(item => item.addEventListener('click', this.searchTag));
-    }
-
-    searchTag(evt) {
-        evt.preventDefault();
-
-        console.log('real-article-meta::searchTag(): evt.target.innerText:', evt.target.innerText);
-        realActions.addAction('tag', evt.target.innerText);
-    }
 }
 
 customElements.define('real-article-meta', RealArticleMeta);

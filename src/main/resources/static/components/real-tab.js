@@ -1,8 +1,7 @@
 import {RealArticlePreview} from "./real-article-preview.js";
-import {realStore} from "../services/real-store.js";
-import {realApi} from "../services/real-api.js";
-import realActions from "../services/real-actions.js";
+import {realStorage} from "../services/real-storage.js";
 import {RealPagination} from "./real-pagination.js";
+import {actionHandler} from "../services/action-handler.js";
 
 const style = `<style>
         
@@ -30,100 +29,100 @@ const getTemplate = () => {
 }
 
 class RealTab extends HTMLElement {
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
         this.shadowRoot.innerHTML = getTemplate();
-
-        this.findElements();
-        this.setEventHandler();
+        this.actions = ['getArticles', 'passTag', 'movePage'];
     }
 
-    async connectedCallback() {
-        console.log('real tab  connectedCallback()');
-
+    init() {
         this.terms = '';
-        const data = await realApi.getArticles();
-        console.log('real-tab::connectedCallback(): data:', data);
-        
-        realStore.saveArticles(data.articles);
-
-        this.render(data.articles);
-        this.pagination = this.shadowRoot.querySelector('real-pagination');
-        this.pagination.setPagination(data.totalPages, data.currentPageNo);
-        this.setTabEvent('.nav-link');
-
-        realActions.addCallback('tag', this.callbackTag);
-        realActions.addCallback('articlePaging', this.callbackArticlePaging);
-    }
-
-    findElements() {
         this.divYourFeed = this.shadowRoot.querySelector('#your-feed');
         this.divArticles = this.shadowRoot.querySelector('#article-preview-list');
         this.divSearch = this.shadowRoot.querySelector('#search-feed');
+        this.pagination = this.shadowRoot.querySelector('real-pagination');
+
+        const loginUser = realStorage.getUser();
+
+        if (loginUser) {
+            this.divYourFeed.innerHTML = `<li class="nav-item"><a class="nav-link" href="" data-terms="author=${loginUser.user.username}">Your Feed</a></li>`;
+        }
     }
 
-    setEventHandler() {
+    connectedCallback() {
+        console.log('real-tab::connectedCallback(): 0:', 0);
 
+        this.init();
+        this.setTabEvent('.nav-link');
+
+        actionHandler.addListener(this.actions, this);
+        actionHandler.addAction({type: 'getArticles', data: {}});
+    }
+    disconnectedCallback() {
+        console.log('real-tab::disconnectedCallback(): 0:', 0);
+
+        actionHandler.removeListener(this.actions, this);
+    }
+
+    callbackAction(actionType, result) {
+        console.log('real-tab::callbackAction(): actionType:', actionType);
+        console.log('real-tab::callbackAction(): result:', result);
+
+        const cbActions = {
+            getArticles: this.getArticlesCallback,
+            passTag: this.passTagCallback,
+            movePage: this.movePageCallback,
+        }
+        cbActions[actionType](result);
+    }
+    getArticlesCallback = (result) => {
+        console.log('real-tab::getArticlesCallback(): result:', result);
+
+        this.setArticles(result);
+    }
+    passTagCallback = (tag) => {
+        this.setTabUnderline();
+        this.divSearch.innerHTML = `<li class="nav-item"><a class="nav-link active" href="" data-terms="tag=${tag}">#${tag}</a></li>`;
+        this.setTabEvent('.nav-link.active');
+        this.searchArticles(`tag=${tag}`);
+    }
+    movePageCallback = (pageNo) => {
+        actionHandler.addAction({type: 'getArticles', data: {terms: this.terms, pageNo}});
+    }
+
+    setArticles(data) {
+        this.divArticles.innerHTML = data.articles.map(article => `<real-article-preview slug="${article.slug}"></real-article-preview>`).join('');
+        this.pagination.setPagination(data.totalPages, data.currentPageNo);
     }
 
     setTabEvent(selector) {
         const tabs = Array.from(this.shadowRoot.querySelectorAll(selector));
-        tabs.forEach(item => item.addEventListener('click', this.searchArticlesByEvent));
+        tabs.forEach(item => item.addEventListener('click', this.searchArticlesByTabClick));
     }
-
-    searchArticlesByEvent = (evt) => {
+    searchArticlesByTabClick = (evt) => {
         evt.preventDefault();
 
-        this.divSearch.innerHTML = '';
+        if (!evt.target.innerText.includes('#')) this.divSearch.innerHTML = '';
 
         this.setTabUnderline(evt.target);
 
-        console.log('real-tab::searchArticlesByEvent(): evt.target.dataset.terms:', evt.target.dataset.terms);
+        console.log('real-tab::searchArticlesByTabClick(): evt.target.dataset.terms:', evt.target.dataset.terms);
         this.searchArticles(evt.target.dataset.terms);
     }
+
     setTabUnderline(target) {
         const aLinks = this.shadowRoot.querySelectorAll('.nav-link');
         aLinks.forEach(item => item.classList.remove('active'));
         if(target) target.classList.add('active');
     }
-    async searchArticles(terms) {
+
+    searchArticles(terms) {
         this.terms = terms;
-        const data = await realApi.getArticles(terms);
-        console.log('real-tab::searchArticles(): data:', data);
-        
-        this.setArticles(data);
+        actionHandler.addAction({type: 'getArticles', data: {terms}});
     }
 
-    setArticles(data) {
-        realStore.saveArticles(data.articles);
-        this.divArticles.innerHTML = data.articles.map(article => `<real-article-preview slug="${article.slug}"></real-article-preview>`).join('');
-        this.pagination.setPagination(data.totalPages, data.currentPageNo);
-    }
-
-
-    render(articles) {
-        const loginUser = realStore.getUser();
-
-        if (loginUser) {
-            console.log('real-tab::render(): loginUser.user.username:', loginUser.user.username);
-            this.divYourFeed.innerHTML = `<li class="nav-item"><a class="nav-link" href="" data-terms="author=${loginUser.user.username}">Your Feed</a></li>`;
-        }
-
-        this.divArticles.innerHTML = articles.map(article => `<real-article-preview slug="${article.slug}"></real-article-preview>`).join('');
-    }
-
-    callbackTag = (value) => {
-        this.setTabUnderline();
-        this.divSearch.innerHTML = `<li class="nav-item"><a class="nav-link active" href="" data-terms="tag=${value}">#${value}</a></li>`;
-        this.setTabEvent('.nav-link.active');
-        this.searchArticles(`tag=${value}`);
-    }
-
-    callbackArticlePaging = async (value) => {
-        const data = await realApi.getArticles(this.terms, value);
-        this.setArticles(data);
-    }
 }
 
 customElements.define('real-tab', RealTab);

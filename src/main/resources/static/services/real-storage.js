@@ -1,4 +1,4 @@
-class RealStore extends Map {
+class RealStorage extends Map {
 
     constructor() {
         super();
@@ -26,6 +26,6 @@ class RealStore extends Map {
 
 }
 
-const realStore = new RealStore();
+const realStorage = new RealStorage();
 
-export {realStore}
+export {realStorage}

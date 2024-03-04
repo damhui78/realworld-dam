@@ -1,4 +1,4 @@
-import {realStore} from "../services/real-store.js";
+import {realStorage} from "../services/real-storage.js";
 import {iconCdn} from "../css/icon.js";
 
 const style = `<style>
@@ -117,7 +117,7 @@ class RealNavbar extends HTMLElement {
     }
 
     render() {
-        const loginUser = realStore.getUser();
+        const loginUser = realStorage.getUser();
         console.log('real-navbar::render(): loginUser:', loginUser);
         this.shadowRoot.innerHTML = loginUser ? getLoginTemplate(loginUser.user.username) : getTemplate();
 

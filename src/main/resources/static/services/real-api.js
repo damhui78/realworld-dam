@@ -1,4 +1,4 @@
-import {realStore} from "./real-store.js";
+import {realStorage} from "./real-storage.js";
 
 const postOrPutApi = (method, url, param) => {
     const headers = makeHeaders();
@@ -37,7 +37,7 @@ const getApi = (url) => {
 }
 
 const makeHeaders = () => {
-    const token = realStore.getUser()?.user.token;
+    const token = realStorage.getUser()?.user.token;
     return token ? {Authorization: 'Token ' + token} : {};
 }
 

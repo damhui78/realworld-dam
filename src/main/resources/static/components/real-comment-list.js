@@ -1,17 +1,11 @@
-import {realApi} from "../services/real-api.js";
-import realActions from "../services/real-actions.js";
 import {RealCommentCard} from "./real-comment-card.js";
-import {iconCdn} from "../css/icon.js";
 
 const style = `<style>
         
 </style>`;
 
-const getTemplate = (comments) => {
-    console.log('real-comment-list::getTemplate(): comments:', comments);
-
+const getTemplate = () => {
     return `
-        ${iconCdn}
         <link rel="stylesheet" href="/css/real.css" />
         ${style}
         
@@ -34,27 +28,18 @@ const getTemplate = (comments) => {
 }
 
 class RealCommentList extends HTMLElement {
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-    }
-
-    async connectedCallback() {
-        console.log('real comment list  connectedCallback()');
-
         this.shadowRoot.innerHTML = getTemplate();
-
-        this.findElements();
-        this.setEventHandler();
     }
 
-    findElements() {
-        this.aLinks = this.shadowRoot.querySelectorAll('a');
+    connectedCallback() {
+    }
+    disconnectedCallback() {
     }
 
-    setEventHandler() {
-        this.aLinks.forEach(item => item.addEventListener('click', this.searchTag));
-    }
 }
 
 customElements.define('real-comment-list', RealCommentList);

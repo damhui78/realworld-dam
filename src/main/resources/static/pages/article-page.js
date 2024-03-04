@@ -51,21 +51,12 @@ class ArticlePage extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-    }
-
-    async connectedCallback() {
-        console.log('article page  connectedCallback()');
-
         this.shadowRoot.innerHTML = getTemplate();
-
-        this.findElements();
-        this.setEventHandler();
     }
 
-    findElements() {
+    connectedCallback() {
     }
-
-    setEventHandler() {
+    disconnectedCallback() {
     }
 }
 

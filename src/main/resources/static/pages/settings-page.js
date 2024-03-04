@@ -1,4 +1,4 @@
-import {realStore} from "../services/real-store.js";
+import {realStorage} from "../services/real-storage.js";
 import {realApi} from "../services/real-api.js";
 
 const style = `<style>
@@ -111,7 +111,7 @@ class SettingsPage extends HTMLElement {
     logout = (evt) => {
         evt.preventDefault();
 
-        realStore.deleteUser();
+        realStorage.deleteUser();
 
         const realNavbar = document.querySelector('real-navbar');
         realNavbar.render();

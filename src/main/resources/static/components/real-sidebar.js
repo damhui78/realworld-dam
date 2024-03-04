@@ -1,13 +1,10 @@
-import {realApi} from "../services/real-api.js";
-import realActions from "../services/real-actions.js";
+import {actionHandler} from "../services/action-handler.js";
 
 const style = `<style>
         
 </style>`;
 
-const getTemplate = (tags) => {
-    console.log('real-sidebar::getTemplate(): tags:', tags);
-
+const getTemplate = () => {
     return `
         <link rel="stylesheet" href="//demo.productionready.io/main.css" />
         ${style}
@@ -16,44 +13,67 @@ const getTemplate = (tags) => {
             <p>Popular Tags</p>
     
             <div class="tag-list">
-                ${tags.map(tag => `<a href="" class="tag-pill tag-default">${tag}</a>`).join('')}
             </div>
         </div>
     `;
 }
 
 class RealSidebar extends HTMLElement {
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.shadowRoot.innerHTML = getTemplate();
+        this.actions = ['getTags'];
     }
 
-    async connectedCallback() {
-        console.log('real sidebar  connectedCallback()');
+    connectedCallback() {
+        console.log('real-sidebar::connectedCallback(): 0:', 0);
 
-        const data = await realApi.getTags();
-        const tags = data.tags;
-        console.log('real-sidebar::connectedCallback(): tags:', tags);
-        this.shadowRoot.innerHTML = getTemplate(tags);
+        actionHandler.addListener(this.actions, this);
+        actionHandler.addAction({type: 'getTags', data: {}});
+    }
+    disconnectedCallback() {
+        console.log('real-sidebar::disconnectedCallback(): 0:', 0);
 
-        this.findElements();
-        this.setEventHandler();
+        actionHandler.removeListener(this.actions, this);
     }
 
-    findElements() {
-        this.aLinks = this.shadowRoot.querySelectorAll('a');
+    callbackAction(actionType, result) {
+        console.log('real-tab::callbackAction(): actionType:', actionType);
+        console.log('real-tab::callbackAction(): result:', result);
+
+        const cbActions = {
+            getTags: this.getTagsCallback,
+        }
+        cbActions[actionType](result);
+    }
+    getTagsCallback = (result) => {
+
+        this.setTags(result);
     }
 
-    setEventHandler() {
-        this.aLinks.forEach(item => item.addEventListener('click', this.searchTag));
+    setTags(data) {
+        console.log('real-sidebar::setTags(): data:', data);
+
+        const divTags = this.shadowRoot.querySelector('.tag-list');
+        divTags.innerHTML = data.tags.map(tag => `<a href="" class="tag-pill tag-default">${tag}</a>`).join('');
+
+        this.setEvent();
     }
 
-    searchTag(evt) {
+    setEvent() {
+        const aLinks = this.shadowRoot.querySelectorAll('a');
+        aLinks.forEach(item => item.addEventListener('click', this.passTag));
+    }
+
+    passTag(evt) {
         evt.preventDefault();
 
-        console.log('real-sidebar::searchTag(): evt.target.innerText:', evt.target.innerText);
-        realActions.addAction('tag', evt.target.innerText);
+        console.log('real-sidebar::passTag(): evt.target.innerText:', evt.target.innerText);
+        actionHandler.addAction({type: 'passTag', data: {tag: evt.target.innerText}});
     }
+
 }
 
 customElements.define('real-sidebar', RealSidebar);

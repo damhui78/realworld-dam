@@ -1,4 +1,4 @@
-import {realStore} from "../services/real-store.js";
+import {realStorage} from "../services/real-storage.js";
 import {realApi} from "../services/real-api.js";
 import {iconCdn} from "../css/icon.js";
 
@@ -42,9 +42,9 @@ class RealArticlePreview extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this.loginUser = realStore.getUser();
+        this.loginUser = realStorage.getUser();
         this.slug = this.getAttribute('slug');
-        const article = realStore.getArticleBySlug(this.slug);
+        const article = realStorage.getArticleBySlug(this.slug);
 
         this.shadowRoot.innerHTML = getTemplate(article);
 
