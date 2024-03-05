@@ -4,24 +4,18 @@ class RealStorage extends Map {
         super();
     }
 
-    saveUser = (user) => {
-        this.set('user', user);
+    store = (key, value) => {
+        this.set(key, value);
     }
-    getUser = () => {
-        return this.get('user');
+    retrieve = (key) => {
+        return this.get(key);
     }
-    deleteUser = () => {
-        this.delete('user');
+    remove = (key) => {
+        this.delete(key);
     }
 
-    saveArticles = (articles) => {
-        this.set('articles', articles);
-    }
-    getArticles = () => {
-        return this.get('articles');
-    }
     getArticleBySlug = (slug) => {
-        return this.getArticles().find(article => article.slug === slug);
+        return this.retrieve('articles')?.find(article => article.slug === slug);
     }
 
 }

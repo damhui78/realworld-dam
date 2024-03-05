@@ -37,7 +37,7 @@ const getApi = (url) => {
 }
 
 const makeHeaders = () => {
-    const token = realStorage.getUser()?.user.token;
+    const token = realStorage.retrieve('user')?.user.token;
     return token ? {Authorization: 'Token ' + token} : {};
 }
 

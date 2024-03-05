@@ -70,7 +70,7 @@ class LoginPage extends HTMLElement {
         const user = {email, password};
         const loginUser = await realApi.loginApi(user);
         console.log('clickSignin loginUser : ', loginUser);
-        realStorage.saveUser(loginUser);
+        realStorage.store('user', loginUser);
 
         const realNavbar = document.querySelector('real-navbar');
         realNavbar.render();

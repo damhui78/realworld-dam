@@ -42,7 +42,7 @@ class RealArticlePreview extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this.loginUser = realStorage.getUser();
+        this.loginUser = realStorage.retrieve('user');
         this.slug = this.getAttribute('slug');
         const article = realStorage.getArticleBySlug(this.slug);
 

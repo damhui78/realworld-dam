@@ -56,7 +56,7 @@ class ActionHandler {
 
         const result = await this.executeAction(action);
 
-        this.storeData(action.type, result);
+        this.storeData(action, result);
         this.notifyListener(action.type, result);
     }
 
@@ -82,17 +82,10 @@ class ActionHandler {
         return data.pageNo;
     }
 
-    storeData(actionType, data) {
-        const actions = {
-            getArticles: this.saveArticles,
-        };
+    storeData(action, data) {
+        if (!action.storeType) return;
 
-        if (!Object.keys(actions).includes(actionType)) return;
-
-        actions[actionType](data);
-    }
-    saveArticles(data) {
-        realStorage.saveArticles(data.articles);
+        realStorage.store(action.storeType, data[action.storeType]);
     }
 
 }

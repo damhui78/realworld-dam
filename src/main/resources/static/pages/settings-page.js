@@ -111,7 +111,7 @@ class SettingsPage extends HTMLElement {
     logout = (evt) => {
         evt.preventDefault();
 
-        realStorage.deleteUser();
+        realStorage.remove('user');
 
         const realNavbar = document.querySelector('real-navbar');
         realNavbar.render();

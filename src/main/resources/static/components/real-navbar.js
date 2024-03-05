@@ -117,7 +117,7 @@ class RealNavbar extends HTMLElement {
     }
 
     render() {
-        const loginUser = realStorage.getUser();
+        const loginUser = realStorage.retrieve('user');
         console.log('real-navbar::render(): loginUser:', loginUser);
         this.shadowRoot.innerHTML = loginUser ? getLoginTemplate(loginUser.user.username) : getTemplate();
 

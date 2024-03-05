@@ -44,7 +44,7 @@ class RealTab extends HTMLElement {
         this.divSearch = this.shadowRoot.querySelector('#search-feed');
         this.pagination = this.shadowRoot.querySelector('real-pagination');
 
-        const loginUser = realStorage.getUser();
+        const loginUser = realStorage.retrieve('user');
 
         if (loginUser) {
             this.divYourFeed.innerHTML = `<li class="nav-item"><a class="nav-link" href="" data-terms="author=${loginUser.user.username}">Your Feed</a></li>`;
@@ -58,7 +58,7 @@ class RealTab extends HTMLElement {
         this.setTabEvent('.nav-link');
 
         actionHandler.addListener(this.actions, this);
-        actionHandler.addAction({type: 'getArticles', data: {}});
+        actionHandler.addAction({type: 'getArticles', data: {}, storeType: 'articles'});
     }
     disconnectedCallback() {
         console.log('real-tab::disconnectedCallback(): 0:', 0);
@@ -75,7 +75,7 @@ class RealTab extends HTMLElement {
             passTag: this.passTagCallback,
             movePage: this.movePageCallback,
         }
-        cbActions[actionType](result);
+        cbActions[actionType] && cbActions[actionType](result);
     }
     getArticlesCallback = (result) => {
         console.log('real-tab::getArticlesCallback(): result:', result);
@@ -89,7 +89,7 @@ class RealTab extends HTMLElement {
         this.searchArticles(`tag=${tag}`);
     }
     movePageCallback = (pageNo) => {
-        actionHandler.addAction({type: 'getArticles', data: {terms: this.terms, pageNo}});
+        actionHandler.addAction({type: 'getArticles', data: {terms: this.terms, pageNo}, storeType: 'articles'});
     }
 
     setArticles(data) {
@@ -98,13 +98,13 @@ class RealTab extends HTMLElement {
     }
 
     setTabEvent(selector) {
-        const tabs = Array.from(this.shadowRoot.querySelectorAll(selector));
-        tabs.forEach(item => item.addEventListener('click', this.searchArticlesByTabClick));
+        this.shadowRoot.querySelectorAll(selector)
+            .forEach(item => item.addEventListener('click', this.searchArticlesByTabClick));
     }
     searchArticlesByTabClick = (evt) => {
         evt.preventDefault();
 
-        if (!evt.target.innerText.includes('#')) this.divSearch.innerHTML = '';
+        if (!evt.target.innerText.startsWith('#')) this.divSearch.innerHTML = '';
 
         this.setTabUnderline(evt.target);
 
@@ -113,14 +113,19 @@ class RealTab extends HTMLElement {
     }
 
     setTabUnderline(target) {
-        const aLinks = this.shadowRoot.querySelectorAll('.nav-link');
-        aLinks.forEach(item => item.classList.remove('active'));
-        if(target) target.classList.add('active');
+        this.shadowRoot.querySelector('.nav-link.active')
+            ?.classList.remove('active');
+
+        target?.classList.add('active');
+
+        // const aLinks = this.shadowRoot.querySelectorAll('.nav-link');
+        // aLinks.forEach(item => item.classList.remove('active'));
+        // if(target) target.classList.add('active');
     }
 
     searchArticles(terms) {
         this.terms = terms;
-        actionHandler.addAction({type: 'getArticles', data: {terms}});
+        actionHandler.addAction({type: 'getArticles', data: {terms}, storeType: 'articles'});
     }
 
 }

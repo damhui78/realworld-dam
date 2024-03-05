@@ -46,15 +46,10 @@ class RealSidebar extends HTMLElement {
         const cbActions = {
             getTags: this.getTagsCallback,
         }
-        cbActions[actionType](result);
+        cbActions[actionType] && cbActions[actionType](result);
     }
-    getTagsCallback = (result) => {
-
-        this.setTags(result);
-    }
-
-    setTags(data) {
-        console.log('real-sidebar::setTags(): data:', data);
+    getTagsCallback = (data) => {
+        console.log('real-sidebar::getTagsCallback(): data:', data);
 
         const divTags = this.shadowRoot.querySelector('.tag-list');
         divTags.innerHTML = data.tags.map(tag => `<a href="" class="tag-pill tag-default">${tag}</a>`).join('');
