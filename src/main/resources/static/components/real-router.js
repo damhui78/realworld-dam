@@ -26,26 +26,17 @@ class RealRouter extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.shadowRoot.innerHTML = getTemplate();
-
-        this.findElements();
-        this.setEventHandler();
     }
 
     connectedCallback() {
         console.log('real router  connectedCallback()')
     }
 
-    findElements() {
-        this.divTag = this.shadowRoot.querySelector('div');
-    }
-
-    setEventHandler() {
-
-    }
-
-    render(page_name) {
+    render(page_name, param) {
         console.log('page_name : ', page_name);
-        this.divTag.innerHTML = `<${page_name}-page></${page_name}-page>`;
+
+        this.shadowRoot.querySelector('div')
+            .innerHTML = `<${page_name}-page ${param ? `param="${param}"` : ""}></${page_name}-page>`;
     }
 }
 

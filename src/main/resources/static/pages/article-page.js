@@ -1,11 +1,13 @@
 import {RealArticleMeta} from "../components/real-article-meta.js";
 import {RealCommentList} from "../components/real-comment-list.js";
+import {actionHandler} from "../services/action-handler.js";
+import {realStorage} from "../services/real-storage.js";
 
 const style = `<style>
         
 </style>`;
 
-const getTemplate = () => {
+const getTemplate = (article) => {
     return `
         <link rel="stylesheet" href="/css/real.css" />
         ${style}
@@ -13,10 +15,11 @@ const getTemplate = () => {
         <div class="article-page">
           <div class="banner">
             <div class="container">
-              <h1>How to build webapps that scale</h1>
-        
-              <real-article-meta></real-article-meta>
+              <h1>
+                ${article.title}
+              </h1>
               
+              <real-article-meta slug="${article.slug}"></real-article-meta>
             </div>
           </div>
         
@@ -24,10 +27,8 @@ const getTemplate = () => {
             <div class="row article-content">
               <div class="col-md-12">
                 <p>
-                  Web development technologies have evolved at an incredible clip over the past few years.
+                  ${article.body}
                 </p>
-                <h2 id="introducing-ionic">Introducing RealWorld.</h2>
-                <p>It's a great solution for learning how other frameworks work.</p>
                 <ul class="tag-list">
                   <li class="tag-default tag-pill tag-outline">realworld</li>
                   <li class="tag-default tag-pill tag-outline">implementations</li>
@@ -38,10 +39,10 @@ const getTemplate = () => {
             <hr />
         
             <div class="article-actions">
-              <real-article-meta></real-article-meta>
+              <real-article-meta slug="${article.slug}"></real-article-meta>
             </div>
         
-            <real-comment-list></real-comment-list>
+            <real-comment-list slug="${article.slug}"></real-comment-list>
           </div>
         </div>
     `;
@@ -51,12 +52,19 @@ class ArticlePage extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this.shadowRoot.innerHTML = getTemplate();
+        this.init();
+        this.shadowRoot.innerHTML = getTemplate(this.article);
+    }
+
+    init() {
+        const slug = this.getAttribute('param');
+        this.article = realStorage.getArticleBySlug(slug);
     }
 
     connectedCallback() {
-    }
-    disconnectedCallback() {
+        console.log('article-page::connectedCallback(): 0:', 0);
+
+        this.init();
     }
 }
 

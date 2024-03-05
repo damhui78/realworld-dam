@@ -66,6 +66,7 @@ class ActionHandler {
             getTags: this.getTags,
             passTag: this.passTag,
             movePage: this.movePage,
+            getComments: this.getComments,
         };
         return actions[type](data);
     }
@@ -80,6 +81,9 @@ class ActionHandler {
     }
     movePage(data) {
         return data.pageNo;
+    }
+    getComments(data) {
+        return realApi.getComments(data.slug);
     }
 
     storeData(action, data) {

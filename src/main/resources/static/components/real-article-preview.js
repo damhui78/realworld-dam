@@ -83,11 +83,7 @@ class RealArticlePreview extends HTMLElement {
 
         evtTarget.classList.toggle('active');
 
-        const btnFavorite = this.shadowRoot.querySelector('button');
-        btnFavorite.innerHTML = `<i class="ion-heart"></i> ${result.article.favoritesCount}`;
-    }
-
-    render() {
+        this.btnFavorite.innerHTML = `<i class="ion-heart"></i> ${result.article.favoritesCount}`;
     }
 
     moveArticlePage = (evt) => {
@@ -95,7 +91,7 @@ class RealArticlePreview extends HTMLElement {
         console.log('real-article-preview::moveArticlePage(): evt.target:', evt.target);
 
         const realRouter = document.querySelector('real-router');
-        realRouter.render('article');
+        realRouter.render('article', this.slug);
     }
 }
 

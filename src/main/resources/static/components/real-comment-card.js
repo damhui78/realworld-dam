@@ -1,10 +1,11 @@
 import {iconCdn} from "../css/icon.js";
+import {realStorage} from "../services/real-storage.js";
 
 const style = `<style>
         
 </style>`;
 
-const getTemplate = () => {
+const getTemplate = (comment) => {
     return `
         ${iconCdn}
         <link rel="stylesheet" href="/css/real.css" />
@@ -13,7 +14,7 @@ const getTemplate = () => {
         <div class="card">
           <div class="card-block">
             <p class="card-text">
-              With supporting text below as a natural lead-in to additional content.
+              ${comment.body}
             </p>
           </div>
           <div class="card-footer">
@@ -21,8 +22,8 @@ const getTemplate = () => {
               <img src="https://api.realworld.io/images/demo-avatar.png" class="comment-author-img" />
             </a>
             &nbsp;
-            <a href="/profile/jacob-schmidt" class="comment-author">Jacob Schmidt</a>
-            <span class="date-posted">Dec 29th</span>
+            <a href="/profile/jacob-schmidt" class="comment-author">${comment.author.username}</a>
+            <span class="date-posted">${comment.createdAt}</span>
             <span class="mod-options">
               <i class="ion-trash-a"></i>
             </span>
@@ -36,7 +37,13 @@ class RealCommentCard extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this.shadowRoot.innerHTML = getTemplate();
+        this.init();
+        this.shadowRoot.innerHTML = getTemplate(this.comment);
+    }
+
+    init() {
+        const id = this.getAttribute('id');
+        this.comment = realStorage.getCommentById(id);
     }
 
     connectedCallback() {

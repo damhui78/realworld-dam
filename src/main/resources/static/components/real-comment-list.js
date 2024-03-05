@@ -1,4 +1,5 @@
 import {RealCommentCard} from "./real-comment-card.js";
+import {actionHandler} from "../services/action-handler.js";
 
 const style = `<style>
         
@@ -21,7 +22,6 @@ const getTemplate = () => {
               </div>
             </form>
             <div id="article-comment-list"></div>
-            <real-comment-card id=""></real-comment-card>
           </div>
         </div>
     `;
@@ -33,11 +33,45 @@ class RealCommentList extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.shadowRoot.innerHTML = getTemplate();
+        this.actions = ['getComments'];
+    }
+    
+    init() {
+        this.slug = this.getAttribute('slug');
+        this.divComments = this.shadowRoot.querySelector('#article-comment-list');
     }
 
     connectedCallback() {
+        console.log('real-comment-list::connectedCallback(): 0:', 0);
+
+        this.init();
+
+        actionHandler.addListener(this.actions, this);
+        actionHandler.addAction({type: 'getComments', data: {slug: this.slug}, storeType: 'comments'});
     }
     disconnectedCallback() {
+        console.log('real-comment-list::disconnectedCallback(): 0:', 0);
+
+        actionHandler.removeListener(this.actions, this);
+    }
+
+    callbackAction(actionType, result) {
+        console.log('real-comment-list::callbackAction(): actionType:', actionType);
+        console.log('real-comment-list::callbackAction(): result:', result);
+
+        const cbActions = {
+            getComments: this.getCommentsCallback,
+        }
+        cbActions[actionType] && cbActions[actionType](result);
+    }
+    getCommentsCallback = (result) => {
+        console.log('real-comment-list::getCommentsCallback(): result:', result);
+
+        this.setComments(result);
+    }
+
+    setComments(data) {
+        this.divComments.innerHTML = data.comments.map(comment => `<real-comment-card id="${comment.id}"></real-comment-card>`).join('');
     }
 
 }

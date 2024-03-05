@@ -17,6 +17,9 @@ class RealStorage extends Map {
     getArticleBySlug = (slug) => {
         return this.retrieve('articles')?.find(article => article.slug === slug);
     }
+    getCommentById = (id) => {
+        return this.retrieve('comments')?.find(comment => comment.id === +id);
+    }
 
 }
 

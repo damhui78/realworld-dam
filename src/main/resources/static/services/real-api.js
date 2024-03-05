@@ -90,6 +90,10 @@ class RealApi {
         return deleteApi(`/api/articles/${slug}/favorite`);
     }
 
+    getComments = (slug) => {
+        return getApi(`/api/articles/${slug}/comments`);
+    }
+
 }
 
 const realApi = new RealApi();
