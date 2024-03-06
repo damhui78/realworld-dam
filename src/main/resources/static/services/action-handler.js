@@ -45,7 +45,6 @@ class ActionHandler {
     addAction(action) {
         eventQueue.push(action);
         console.log('action-handler::addEvent(): eventQueue:', eventQueue);
-
     }
 
     runAction = async () => {
@@ -67,6 +66,11 @@ class ActionHandler {
             passTag: this.passTag,
             movePage: this.movePage,
             getComments: this.getComments,
+            followUser: this.followUser,
+            unfollowUser: this.unfollowUser,
+            favoriteArticle: this.favoriteArticle,
+            unfavoriteArticle: this.unfavoriteArticle,
+            deleteArticle: this.deleteArticle,
         };
         return actions[type](data);
     }
@@ -84,6 +88,21 @@ class ActionHandler {
     }
     getComments(data) {
         return realApi.getComments(data.slug);
+    }
+    followUser(data) {
+        return realApi.followUser(data.username);
+    }
+    unfollowUser(data) {
+        return realApi.unfollowUser(data.username);
+    }
+    favoriteArticle(data) {
+        return realApi.favoriteArticle(data.slug);
+    }
+    unfavoriteArticle(data) {
+        return realApi.unfavoriteArticle(data.slug);
+    }
+    deleteArticle(data) {
+        return realApi.deleteArticle(data.slug)
     }
 
     storeData(action, data) {

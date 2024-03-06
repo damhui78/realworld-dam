@@ -30,8 +30,7 @@ const getTemplate = (article) => {
                   ${article.body}
                 </p>
                 <ul class="tag-list">
-                  <li class="tag-default tag-pill tag-outline">realworld</li>
-                  <li class="tag-default tag-pill tag-outline">implementations</li>
+                  ${article.tagList.map(tag => `<li class="tag-default tag-pill tag-outline">${tag}</li>`).join('')}
                 </ul>
               </div>
             </div>

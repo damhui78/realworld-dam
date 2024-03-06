@@ -82,16 +82,32 @@ class RealApi {
         return postApi('/api/articles', {article});
     }
 
+    updateArticle = (article, slug) => {
+        return putApi(`/api/articles/${slug}`, {article});
+    }
+
+    deleteArticle = (slug) => {
+        return deleteApi(`/api/articles/${slug}`);
+    }
+
     favoriteArticle = (slug) => {
         return postApi(`/api/articles/${slug}/favorite`);
     }
 
-    unFavoriteArticle = (slug) => {
+    unfavoriteArticle = (slug) => {
         return deleteApi(`/api/articles/${slug}/favorite`);
     }
 
     getComments = (slug) => {
         return getApi(`/api/articles/${slug}/comments`);
+    }
+
+    followUser = (username) => {
+        return postApi(`/api/profiles/${username}/follow`);
+    }
+
+    unfollowUser = (username) => {
+        return deleteApi(`/api/profiles/${username}/follow`);
     }
 
 }

@@ -1,4 +1,5 @@
 import {realApi} from "../services/real-api.js";
+import {realStorage} from "../services/real-storage.js";
 
 const style = `<style>
         
@@ -54,33 +55,40 @@ class EditorPage extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.shadowRoot.innerHTML = getTemplate();
+    }
 
-        this.findElements();
-        this.setEventHandler();
+    init() {
+        this.inputTitle = this.shadowRoot.querySelector('#title');
+        this.inputDesc = this.shadowRoot.querySelector('#description');
+        this.textareaBody = this.shadowRoot.querySelector('textarea');
+        this.divTagList = this.shadowRoot.querySelector('.tag-list');
+
+        this.shadowRoot.querySelector('#input-tag')
+            .addEventListener('keyup', this.addTag);
+        this.shadowRoot.querySelector('button')
+            .addEventListener('click', this.saveArticle);
+
+        this.slug = this.getAttribute('param');
+        if (!this.slug) return;
+
+        const article = realStorage.getArticleBySlug(this.slug);
+        this.inputTitle.value = article.title;
+        this.inputDesc.value = article.description;
+        this.textareaBody.value = article.body;
+        this.divTagList.innerHTML = article.tagList.map(tag => `<span class="tag-default tag-pill"> <i class="ion-close-round"></i>${tag}</span>`).join('');
     }
 
     connectedCallback() {
         console.log('editor page  connectedCallback()');
 
-        this.render();
-    }
-
-    findElements() {
-        this.inputTag = this.shadowRoot.querySelector('#input-tag');
-        this.btnPublish = this.shadowRoot.querySelector('button');
-    }
-
-    setEventHandler() {
-        this.inputTag.addEventListener('keyup', this.addTag);
-        this.btnPublish.addEventListener('click', this.saveArticle);
+        this.init();
     }
 
     addTag = (evt) => {
         if (evt.key !== 'Enter') return;
 
-        const divTagList = this.shadowRoot.querySelector('.tag-list');
-        divTagList.innerHTML += `<span class="tag-default tag-pill"> <i class="ion-close-round"></i>${evt.target.value}</span>`;
-        divTagList.querySelectorAll('span').forEach(item => item.addEventListener('click', this.delTag));
+        this.divTagList.innerHTML += `<span class="tag-default tag-pill"> <i class="ion-close-round"></i>${evt.target.value}</span>`;
+        this.divTagList.querySelectorAll('span').forEach(item => item.addEventListener('click', this.delTag));
 
         evt.target.value = '';
     }
@@ -90,9 +98,9 @@ class EditorPage extends HTMLElement {
     }
 
     saveArticle = async () => {
-        const title = this.shadowRoot.querySelector('#title').value;
-        const description = this.shadowRoot.querySelector('#description').value;
-        const body = this.shadowRoot.querySelector('textarea').value;
+        const title = this.inputTitle.value;
+        const description = this.inputDesc.value;
+        const body = this.textareaBody.value;
         const tagList = Array.from(this.shadowRoot.querySelectorAll('span')).map(item => item.innerText);
 
         const article = {
@@ -102,14 +110,14 @@ class EditorPage extends HTMLElement {
             tagList
         };
         console.log('editor-page::saveArticle(): article:', article);
-        await realApi.saveArticle(article);
+        console.log('editor-page::saveArticle(): this.slug:', this.slug);
+        
+        this.slug
+            ? await realApi.updateArticle(article, this.slug)
+            : await realApi.saveArticle(article);
 
         const realNavbar = document.querySelector('real-navbar');
         realNavbar.goHome();
-    }
-
-    render() {
-
     }
 }
 

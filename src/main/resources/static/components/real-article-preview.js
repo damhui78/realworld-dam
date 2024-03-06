@@ -78,7 +78,7 @@ class RealArticlePreview extends HTMLElement {
         const evtTarget = evt.target;
 
         const result = evtTarget.classList.contains('active')
-            ? await realApi.unFavoriteArticle(this.slug)
+            ? await realApi.unfavoriteArticle(this.slug)
             : await realApi.favoriteArticle(this.slug);
 
         evtTarget.classList.toggle('active');
