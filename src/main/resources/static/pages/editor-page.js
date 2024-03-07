@@ -113,7 +113,7 @@ class EditorPage extends HTMLElement {
         console.log('editor-page::saveArticle(): this.slug:', this.slug);
         
         this.slug
-            ? await realApi.updateArticle(article, this.slug)
+            ? await realApi.updateArticle(this.slug, article)
             : await realApi.saveArticle(article);
 
         const realNavbar = document.querySelector('real-navbar');

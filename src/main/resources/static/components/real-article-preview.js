@@ -1,6 +1,6 @@
 import {realStorage} from "../services/real-storage.js";
-import {realApi} from "../services/real-api.js";
 import {iconCdn} from "../css/icon.js";
+import {actionHandler} from "../services/action-handler.js";
 
 
 const style = `<style>
@@ -17,7 +17,7 @@ const getTemplate = (article) => {
         
         <div class="article-preview">
             <div class="article-meta">
-                <a href="/profile/${username}"><img src="${article.author.image}"></a>
+                <a href="/profile/${username}" class="author"><img src="${article.author.image}"></a>
                 <div class="info">
                     <a href="/profile/${username}" class="author">${username}</a>
                     <span class="date">${article.createdAt}</span>
@@ -42,31 +42,42 @@ class RealArticlePreview extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.init();
+        this.shadowRoot.innerHTML = getTemplate(this.article);
+        this.actions = ['favoriteArticle', 'unfavoriteArticle'];
+    }
+
+    init() {
+        this.router = document.querySelector('real-router');
         this.loginUser = realStorage.retrieve('user');
         this.slug = this.getAttribute('slug');
-        const article = realStorage.getArticleBySlug(this.slug);
-
-        this.shadowRoot.innerHTML = getTemplate(article);
-
-        this.findElements();
-        this.setEventHandler();
+        this.article = realStorage.getArticleBySlug(this.slug);
     }
 
     connectedCallback() {
-        console.log('real article preview  connectedCallback()');
+        console.log('real-article-preview::connectedCallback(): 0:', 0);
+
+        this.setEvent();
+
+        actionHandler.addListener(this.actions, this);
+    }
+    disconnectedCallback() {
+        console.log('real-article-preview::disconnectedCallback(): 0:', 0);
+
+        actionHandler.removeListener(this.actions, this);
     }
 
-    findElements() {
+    setEvent() {
         this.btnFavorite = this.shadowRoot.querySelector('button');
         this.aArticleLink = this.shadowRoot.querySelector('.preview-link');
-    }
+        this.aAuthorLinks = this.shadowRoot.querySelectorAll('.author');
 
-    setEventHandler() {
         this.btnFavorite.addEventListener('click', this.clickFavoriteArticle);
         this.aArticleLink.addEventListener('click', this.moveArticlePage);
+        this.aAuthorLinks.forEach(item => item.addEventListener('click', this.moveProfilePage));
     }
 
-    clickFavoriteArticle = async (evt) => {
+    clickFavoriteArticle = (evt) => {
         evt.preventDefault();
 
         if (!this.loginUser) {
@@ -75,24 +86,41 @@ class RealArticlePreview extends HTMLElement {
             return;
         }
 
-        const evtTarget = evt.target;
-
-        const result = evtTarget.classList.contains('active')
-            ? await realApi.unfavoriteArticle(this.slug)
-            : await realApi.favoriteArticle(this.slug);
-
-        evtTarget.classList.toggle('active');
-
-        this.btnFavorite.innerHTML = `<i class="ion-heart"></i> ${result.article.favoritesCount}`;
+        evt.target.classList.contains('active')
+            ? actionHandler.addAction({type: 'unfavoriteArticle', data: {slug: this.slug}})
+            : actionHandler.addAction({type: 'favoriteArticle', data: {slug: this.slug}});
     }
 
     moveArticlePage = (evt) => {
         evt.preventDefault();
-        console.log('real-article-preview::moveArticlePage(): evt.target:', evt.target);
 
-        const realRouter = document.querySelector('real-router');
-        realRouter.render('article', this.slug);
+        this.router.render('article', this.slug);
     }
+
+    moveProfilePage = (evt) => {
+        evt.preventDefault();
+
+        this.router.render('profile', this.article.author.username);
+    }
+
+    callbackAction(actionType, result) {
+        console.log('real-tab::callbackAction(): actionType:', actionType);
+        console.log('real-tab::callbackAction(): result:', result);
+
+        const cbActions = {
+            favoriteArticle: this.favoriteArticleCallback,
+            unfavoriteArticle: this.favoriteArticleCallback,
+        }
+        cbActions[actionType] && cbActions[actionType](result);
+    }
+    favoriteArticleCallback = (result) => {
+        console.log('real-article-preview::favoriteArticleCallback(): result:', result);
+        if (result.article.slug !== this.slug) return;
+
+        this.btnFavorite.classList.toggle('active');
+        this.btnFavorite.innerHTML = `<i class="ion-heart"></i> ${result.article.favoritesCount}`;
+    }
+
 }
 
 customElements.define('real-article-preview', RealArticlePreview);

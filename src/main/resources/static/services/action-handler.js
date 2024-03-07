@@ -71,6 +71,8 @@ class ActionHandler {
             favoriteArticle: this.favoriteArticle,
             unfavoriteArticle: this.unfavoriteArticle,
             deleteArticle: this.deleteArticle,
+            addComment: this.addComment,
+            deleteComment: this.deleteComment,
         };
         return actions[type](data);
     }
@@ -102,7 +104,13 @@ class ActionHandler {
         return realApi.unfavoriteArticle(data.slug);
     }
     deleteArticle(data) {
-        return realApi.deleteArticle(data.slug)
+        return realApi.deleteArticle(data.slug);
+    }
+    addComment(data) {
+        return realApi.addComment(data.slug, data.comment);
+    }
+    deleteComment(data) {
+        return realApi.deleteComment(data.slug, data.id);
     }
 
     storeData(action, data) {

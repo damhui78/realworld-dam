@@ -1,5 +1,6 @@
 import {RealCommentCard} from "./real-comment-card.js";
 import {actionHandler} from "../services/action-handler.js";
+import {realStorage} from "../services/real-storage.js";
 
 const style = `<style>
         
@@ -33,11 +34,16 @@ class RealCommentList extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.shadowRoot.innerHTML = getTemplate();
-        this.actions = ['getComments'];
+        this.actions = ['getComments', 'addComment', 'deleteComment'];
     }
     
     init() {
+        this.router = document.querySelector('real-router');
+        this.loginUser = realStorage.retrieve('user');
         this.slug = this.getAttribute('slug');
+        this.textareaBody = this.shadowRoot.querySelector('textarea');
+        this.shadowRoot.querySelector('button')
+            .addEventListener('click', this.addComment);
         this.divComments = this.shadowRoot.querySelector('#article-comment-list');
     }
 
@@ -55,23 +61,46 @@ class RealCommentList extends HTMLElement {
         actionHandler.removeListener(this.actions, this);
     }
 
+    addComment = (evt) => {
+        evt.preventDefault();
+
+        if (!this.loginUser) {
+            this.router.render('login');
+            return;
+        }
+
+        const comment = {
+            body: this.textareaBody.value
+        };
+        actionHandler.addAction({type: 'addComment', data: {slug: this.slug, comment}});
+    }
+
     callbackAction(actionType, result) {
         console.log('real-comment-list::callbackAction(): actionType:', actionType);
         console.log('real-comment-list::callbackAction(): result:', result);
 
         const cbActions = {
             getComments: this.getCommentsCallback,
+            addComment: this.addCommentCallback,
+            deleteComment: this.deleteCommentCallback,
         }
         cbActions[actionType] && cbActions[actionType](result);
     }
     getCommentsCallback = (result) => {
         console.log('real-comment-list::getCommentsCallback(): result:', result);
 
-        this.setComments(result);
+        this.divComments.innerHTML = result.comments.map(comment => `<real-comment-card slug="${this.slug}" id="${comment.id}"></real-comment-card>`).join('');
     }
+    addCommentCallback = (result) => {
+        console.log('real-comment-list::addCommentCallback(): result:', result);
 
-    setComments(data) {
-        this.divComments.innerHTML = data.comments.map(comment => `<real-comment-card id="${comment.id}"></real-comment-card>`).join('');
+        this.textareaBody.value = '';
+        actionHandler.addAction({type: 'getComments', data: {slug: this.slug}, storeType: 'comments'});
+    }
+    deleteCommentCallback = (result) => {
+        console.log('real-comment-list::deleteCommentCallback(): result:', result);
+
+        actionHandler.addAction({type: 'getComments', data: {slug: this.slug}, storeType: 'comments'});
     }
 
 }

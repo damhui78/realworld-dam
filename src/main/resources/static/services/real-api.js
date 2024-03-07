@@ -82,7 +82,7 @@ class RealApi {
         return postApi('/api/articles', {article});
     }
 
-    updateArticle = (article, slug) => {
+    updateArticle = (slug, article) => {
         return putApi(`/api/articles/${slug}`, {article});
     }
 
@@ -100,6 +100,14 @@ class RealApi {
 
     getComments = (slug) => {
         return getApi(`/api/articles/${slug}/comments`);
+    }
+
+    addComment = (slug, comment) => {
+        return postApi(`/api/articles/${slug}/comments`, {comment});
+    }
+
+    deleteComment = (slug, id) => {
+        return deleteApi(`/api/articles/${slug}/comments/${id}`);
     }
 
     followUser = (username) => {

@@ -17,7 +17,7 @@ const getTemplate = (article, isMyArticle) => {
           <a href="/profile/eric-simons"><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
           <div class="info">
             <a href="/profile/eric-simons" class="author">${authorname}</a>
-            <span class="date">January 20th</span>
+            <span class="date">${article.createdAt}</span>
           </div>
           ${
             isMyArticle

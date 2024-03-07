@@ -6827,7 +6827,7 @@ footer .attribution {
     padding: 1.25rem
 }
 
-.article-page .comment-form .card-footer .btn {
+.comment-form .card-footer .btn {
     font-weight: 700;
     float: right
 }
@@ -6849,7 +6849,7 @@ footer .attribution {
     font-weight: 300
 }
 
-.article-page .card .comment-author-img {
+.card .comment-author-img {
     display: inline-block;
     vertical-align: middle;
     height: 20px;
@@ -6869,7 +6869,7 @@ footer .attribution {
     color: #bbb
 }
 
-.article-page .card .mod-options {
+.card .mod-options {
     float: right;
     color: #333;
     font-size: 1rem
