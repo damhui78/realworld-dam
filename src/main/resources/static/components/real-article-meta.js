@@ -14,9 +14,9 @@ const getTemplate = (article, isMyArticle) => {
         ${style}
         
         <div class="article-meta">
-          <a href="/profile/eric-simons"><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
+          <a href="/profile/${authorname}"><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
           <div class="info">
-            <a href="/profile/eric-simons" class="author">${authorname}</a>
+            <a href="/profile/${authorname}" class="author">${authorname}</a>
             <span class="date">${article.createdAt}</span>
           </div>
           ${
@@ -77,6 +77,8 @@ class RealArticleMeta extends HTMLElement {
             this.shadowRoot.querySelector('#favorite-article')
                 .addEventListener('click', this.favoriteArticle);
         }
+        this.shadowRoot.querySelectorAll('a')
+            .forEach(item => item.addEventListener('click', this.moveProfilePage));
 
         actionHandler.addListener(this.actions, this);
     }
@@ -90,6 +92,12 @@ class RealArticleMeta extends HTMLElement {
         evt.preventDefault();
 
         this.router.render('editor', this.slug);
+    }
+
+    moveProfilePage = (evt) => {
+        evt.preventDefault();
+
+        this.router.render('profile', this.article.author.username);
     }
 
     deleteArticle = (evt) => {
