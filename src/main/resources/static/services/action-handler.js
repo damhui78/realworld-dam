@@ -43,8 +43,9 @@ class ActionHandler {
     }
 
     addAction(action) {
+        console.log('action-handler::addAction(): action:', action);
+
         eventQueue.push(action);
-        console.log('action-handler::addEvent(): eventQueue:', eventQueue);
     }
 
     runAction = async () => {
@@ -61,9 +62,10 @@ class ActionHandler {
 
     executeAction({type, data}) {
         const actions = {
+            changeTab: this.changeTab,
+            changeActiveTab: this.changeActiveTab,
             getArticles: this.getArticles,
             getTags: this.getTags,
-            passTag: this.passTag,
             movePage: this.movePage,
             getComments: this.getComments,
             followUser: this.followUser,
@@ -76,14 +78,17 @@ class ActionHandler {
         };
         return actions[type](data);
     }
+    changeTab(data) {
+        return data;
+    }
+    changeActiveTab(data) {
+        return data;
+    }
     getArticles(data) {
-        return realApi.getArticles(data.terms, data.pageNo);
+        return data.terms === 'feed' ? realApi.getFeedArticles(data.pageNo) : realApi.getArticles(data.terms, data.pageNo);
     }
     getTags() {
         return realApi.getTags();
-    }
-    passTag(data) {
-        return data.tag;
     }
     movePage(data) {
         return data.pageNo;

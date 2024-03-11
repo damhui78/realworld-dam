@@ -13,12 +13,10 @@ const getTemplate = () => {
         ${style}
         
         <div class="feed-toggle">
-            <ul class="nav nav-pills outline-active">
-                <div id="your-feed"></div>
+            <ul id="tabs" class="nav nav-pills outline-active">
                 <li class="nav-item">
                     <a class="nav-link active" href="">Global Feed</a>
                 </li>
-                <div id="search-feed"></div>
             </ul>
         </div>
         
@@ -34,21 +32,18 @@ class RealTab extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.shadowRoot.innerHTML = getTemplate();
-        this.actions = ['getArticles', 'passTag', 'movePage'];
+        this.actions = ['changeTab', 'changeActiveTab', 'getArticles', 'movePage'];
     }
 
     init() {
         this.terms = '';
-        this.divYourFeed = this.shadowRoot.querySelector('#your-feed');
+        this.tabs = this.shadowRoot.querySelector('#tabs');
         this.divArticles = this.shadowRoot.querySelector('#article-preview-list');
-        this.divSearch = this.shadowRoot.querySelector('#search-feed');
         this.pagination = this.shadowRoot.querySelector('real-pagination');
 
-        const loginUser = realStorage.retrieve('user');
-
-        if (loginUser) {
-            this.divYourFeed.innerHTML = `<li class="nav-item"><a class="nav-link" href="" data-terms="author=${loginUser.user.username}">Your Feed</a></li>`;
-        }
+        this.loginUser = realStorage.retrieve('user');
+        const tabs = this.loginUser ?  ['Your Feed', 'Global Feed'] : ['Global Feed'];
+        actionHandler.addAction({type: 'changeTab', data: {tabTitles: tabs, activeTabTitle: 'Global Feed'}, storeType: 'tabTitles'});
     }
 
     connectedCallback() {
@@ -58,7 +53,6 @@ class RealTab extends HTMLElement {
         this.setTabEvent('.nav-link');
 
         actionHandler.addListener(this.actions, this);
-        actionHandler.addAction({type: 'getArticles', data: {}, storeType: 'articles'});
     }
     disconnectedCallback() {
         console.log('real-tab::disconnectedCallback(): 0:', 0);
@@ -71,22 +65,55 @@ class RealTab extends HTMLElement {
         console.log('real-tab::callbackAction(): result:', result);
 
         const cbActions = {
+            changeTab: this.changeTabCallback,
+            changeActiveTab: this.changeActiveTabCallback,
             getArticles: this.getArticlesCallback,
-            passTag: this.passTagCallback,
             movePage: this.movePageCallback,
         }
         cbActions[actionType] && cbActions[actionType](result);
+    }
+    changeTabCallback = (result) => {
+        console.log('real-tab::changeTabCallback(): result:', result);
+
+        let terms = '';
+
+        switch (result.activeTabTitle.startsWith('#') ? '#' : result.activeTabTitle) {
+            case 'Global Feed':
+                terms = '';
+                break;
+            case 'Your Feed':
+                terms = `feed`;
+                break;
+            case '#':
+                terms = `tag=${result.activeTabTitle.substring(1)}`;
+                break;
+            case 'My Articles':
+                terms = `author=${this.loginUser?.user.username}`;
+                break;
+            case 'Favorited Articles':
+                terms = `favorited=${this.loginUser?.user.username}`;
+                break;
+            default:
+                terms = '';
+        }
+        this.tabs.innerHTML = result.tabTitles.map(item => `<li class="nav-item">
+                <a class="nav-link ${item === result.activeTabTitle ? 'active' : ''}" data-terms="${terms}" href="">${item}</a>
+            </li>`).join('');
+        this.setTabEvent('.nav-link');
+        this.searchArticles(terms);
+    }
+    changeActiveTabCallback = (result) => {
+        console.log('real-tab::changeActiveTabCallback(): result:', result);
+
+        const target = Array.from(this.shadowRoot.querySelectorAll('.nav-link'))
+            .find(item => item.innerText === result.activeTabTitle);
+        this.setTabUnderline(target);
+        this.searchArticles(target.dataset.terms);
     }
     getArticlesCallback = (result) => {
         console.log('real-tab::getArticlesCallback(): result:', result);
 
         this.setArticles(result);
-    }
-    passTagCallback = (tag) => {
-        this.setTabUnderline();
-        this.divSearch.innerHTML = `<li class="nav-item"><a class="nav-link active" href="" data-terms="tag=${tag}">#${tag}</a></li>`;
-        this.setTabEvent('.nav-link.active');
-        this.searchArticles(`tag=${tag}`);
     }
     movePageCallback = (pageNo) => {
         actionHandler.addAction({type: 'getArticles', data: {terms: this.terms, pageNo}, storeType: 'articles'});
@@ -104,12 +131,14 @@ class RealTab extends HTMLElement {
     searchArticlesByTabClick = (evt) => {
         evt.preventDefault();
 
-        if (!evt.target.innerText.startsWith('#')) this.divSearch.innerHTML = '';
-
-        this.setTabUnderline(evt.target);
-
+        console.log('real-tab::searchArticlesByTabClick(): evt.target.innerText:', evt.target.innerText);
         console.log('real-tab::searchArticlesByTabClick(): evt.target.dataset.terms:', evt.target.dataset.terms);
-        this.searchArticles(evt.target.dataset.terms);
+
+        if (evt.target.innerText.startsWith('#') || realStorage.retrieve('tabTitles').find(item => item.startsWith('#'))?.length < 1) {
+            actionHandler.addAction({type: 'changeActiveTab', data: {activeTabTitle: evt.target.innerText}});
+        } else {
+            actionHandler.addAction({type: 'changeTab', data: {tabTitles: this.loginUser ? ['Your Feed', 'Global Feed'] : ['Global Feed'], activeTabTitle: evt.target.innerText}, storeType: 'tabTitles'});
+        }
     }
 
     setTabUnderline(target) {
@@ -117,10 +146,6 @@ class RealTab extends HTMLElement {
             ?.classList.remove('active');
 
         target?.classList.add('active');
-
-        // const aLinks = this.shadowRoot.querySelectorAll('.nav-link');
-        // aLinks.forEach(item => item.classList.remove('active'));
-        // if(target) target.classList.add('active');
     }
 
     searchArticles(terms) {

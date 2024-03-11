@@ -73,6 +73,14 @@ class RealApi {
         
         return getApi(url);
     }
+    getFeedArticles = (pageNo = 0) => {
+        console.log('real-api::getFeedArticles(): pageNo:', pageNo);
+
+        const url = `/api/articles/feed?limit=2&offset=${pageNo*2}`;
+        console.log('real-api::getArticles(): url:', url);
+
+        return getApi(url);
+    }
 
     getTags = () => {
         return getApi('/api/tags');

@@ -1,4 +1,5 @@
 import {actionHandler} from "../services/action-handler.js";
+import {realStorage} from "../services/real-storage.js";
 
 const style = `<style>
         
@@ -29,6 +30,8 @@ class RealSidebar extends HTMLElement {
 
     connectedCallback() {
         console.log('real-sidebar::connectedCallback(): 0:', 0);
+
+        this.loginUser = realStorage.retrieve('user');
 
         actionHandler.addListener(this.actions, this);
         actionHandler.addAction({type: 'getTags', data: {}});
@@ -62,11 +65,11 @@ class RealSidebar extends HTMLElement {
         aLinks.forEach(item => item.addEventListener('click', this.passTag));
     }
 
-    passTag(evt) {
+    passTag = (evt) => {
         evt.preventDefault();
 
-        console.log('real-sidebar::passTag(): evt.target.innerText:', evt.target.innerText);
-        actionHandler.addAction({type: 'passTag', data: {tag: evt.target.innerText}});
+        const tag = evt.target.innerText;
+        actionHandler.addAction({type: 'changeTab', data: {tabTitles: this.loginUser ? ['Your Feed', 'Global Feed', `#${tag}`] : ['Global Feed', `#${tag}`], activeTabTitle: `#${tag}`}, storeType: 'tabTitles'});
     }
 
 }
