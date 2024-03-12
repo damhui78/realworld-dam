@@ -118,6 +118,10 @@ class RealApi {
         return deleteApi(`/api/articles/${slug}/comments/${id}`);
     }
 
+    getProfile = (username) => {
+        return getApi(`/api/profiles/${username}`);
+    }
+
     followUser = (username) => {
         return postApi(`/api/profiles/${username}/follow`);
     }

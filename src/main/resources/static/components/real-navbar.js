@@ -45,10 +45,10 @@ const getLoginTemplate = (username) => {
                         <a id="homeLink" class="nav-link active" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/editor"> <i class="ion-compose"></i>&nbsp;New Article </a>
+                        <a id="editorLink" class="nav-link" href="/editor"> <i class="ion-compose"></i>&nbsp;New Article </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/settings"> <i class="ion-gear-a"></i>&nbsp;Settings </a>
+                        <a id="settingsLink" class="nav-link" href="/settings"> <i class="ion-gear-a"></i>&nbsp;Settings </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/profile/${username}">
@@ -110,7 +110,7 @@ class RealNavbar extends HTMLElement {
         } else if (evtTarget.href.includes('settings')) {
             this.router.render('settings');
         } else if (evtTarget.href.includes('profile')) {
-            this.router.render('profile');
+            this.router.render('profile', evtTarget.href.substring(evtTarget.href.lastIndexOf('/')+1));
         } else {
             this.router.render('home');
         }
@@ -137,6 +137,12 @@ class RealNavbar extends HTMLElement {
         const loginLink = this.shadowRoot.querySelector('#loginLink');
         this.markCurrentNavigation(loginLink);
         this.router.render('login');
+    }
+
+    goSettings() {
+        const settingsLink = this.shadowRoot.querySelector('#settingsLink');
+        this.markCurrentNavigation(settingsLink);
+        this.router.render('settings');
     }
 
     markCurrentNavigation(target) {

@@ -68,6 +68,7 @@ class ActionHandler {
             getTags: this.getTags,
             movePage: this.movePage,
             getComments: this.getComments,
+            getProfile: this.getProfile,
             followUser: this.followUser,
             unfollowUser: this.unfollowUser,
             favoriteArticle: this.favoriteArticle,
@@ -95,6 +96,9 @@ class ActionHandler {
     }
     getComments(data) {
         return realApi.getComments(data.slug);
+    }
+    getProfile(data) {
+        return realApi.getProfile(data.username);
     }
     followUser(data) {
         return realApi.followUser(data.username);

@@ -1,8 +1,12 @@
+import {RealTab} from "../components/real-tab.js";
+import {actionHandler} from "../services/action-handler.js";
+import {realStorage} from "../services/real-storage.js";
+
 const style = `<style>
         
 </style>`;
 
-const getTemplate = () => {
+const getTemplate = (userName, loginUserName) => {
     return `
         <link rel="stylesheet" href="//demo.productionready.io/main.css" />
         ${style}
@@ -12,20 +16,23 @@ const getTemplate = () => {
             <div class="container">
               <div class="row">
                 <div class="col-xs-12 col-md-10 offset-md-1">
-                  <img src="http://i.imgur.com/Qr71crq.jpg" class="user-img" />
-                  <h4>Eric Simons</h4>
+                  <img src="" class="user-img" />
+                  <h4>${userName}</h4>
                   <p>
-                    Cofounder @GoThinkster, lived in Aol's HQ for a few months, kinda looks like Peeta from
-                    the Hunger Games
                   </p>
-                  <button class="btn btn-sm btn-outline-secondary action-btn">
-                    <i class="ion-plus-round"></i>
-                    &nbsp; Follow Eric Simons
-                  </button>
-                  <button class="btn btn-sm btn-outline-secondary action-btn">
-                    <i class="ion-gear-a"></i>
-                    &nbsp; Edit Profile Settings
-                  </button>
+                  ${
+                    userName === loginUserName
+                      ?
+                        `<button id="btnEditSettings" class="btn btn-sm btn-outline-secondary action-btn">
+                          <i class="ion-gear-a"></i>
+                          &nbsp; Edit Profile Settings
+                        </button>`
+                      :
+                        `<button id="btnFollow" class="btn btn-sm btn-outline-secondary action-btn">
+                          <i class="ion-plus-round"></i>
+                          &nbsp; Follow ${userName}
+                        </button>`
+                  }
                 </div>
               </div>
             </div>
@@ -34,72 +41,11 @@ const getTemplate = () => {
           <div class="container">
             <div class="row">
               <div class="col-xs-12 col-md-10 offset-md-1">
-                <div class="articles-toggle">
-                  <ul class="nav nav-pills outline-active">
-                    <li class="nav-item">
-                      <a class="nav-link active" href="">My Articles</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="">Favorited Articles</a>
-                    </li>
-                  </ul>
-                </div>
-        
-                <div class="article-preview">
-                  <div class="article-meta">
-                    <a href="/profile/eric-simons"><img src="http://i.imgur.com/Qr71crq.jpg" /></a>
-                    <div class="info">
-                      <a href="/profile/eric-simons" class="author">Eric Simons</a>
-                      <span class="date">January 20th</span>
-                    </div>
-                    <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                      <i class="ion-heart"></i> 29
-                    </button>
-                  </div>
-                  <a href="/article/how-to-buil-webapps-that-scale" class="preview-link">
-                    <h1>How to build webapps that scale</h1>
-                    <p>This is the description for the post.</p>
-                    <span>Read more...</span>
-                    <ul class="tag-list">
-                      <li class="tag-default tag-pill tag-outline">realworld</li>
-                      <li class="tag-default tag-pill tag-outline">implementations</li>
-                    </ul>
-                  </a>
-                </div>
-        
-                <div class="article-preview">
-                  <div class="article-meta">
-                    <a href="/profile/albert-pai"><img src="http://i.imgur.com/N4VcUeJ.jpg" /></a>
-                    <div class="info">
-                      <a href="/profile/albert-pai" class="author">Albert Pai</a>
-                      <span class="date">January 20th</span>
-                    </div>
-                    <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                      <i class="ion-heart"></i> 32
-                    </button>
-                  </div>
-                  <a href="/article/the-song-you" class="preview-link">
-                    <h1>The song you won't ever stop singing. No matter how hard you try.</h1>
-                    <p>This is the description for the post.</p>
-                    <span>Read more...</span>
-                    <ul class="tag-list">
-                      <li class="tag-default tag-pill tag-outline">Music</li>
-                      <li class="tag-default tag-pill tag-outline">Song</li>
-                    </ul>
-                  </a>
-                </div>
-        
-                <ul class="pagination">
-                  <li class="page-item active">
-                    <a class="page-link" href="">1</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="">2</a>
-                  </li>
-                </ul>
+                <real-tab pageName="profile" userName="${userName}"></real-tab>
               </div>
             </div>
           </div>
+          
         </div>
     `;
 }
@@ -108,28 +54,98 @@ class ProfilePage extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this.shadowRoot.innerHTML = getTemplate();
+        this.init();
+        this.shadowRoot.innerHTML = getTemplate(this.userName, this.loginUser?.user.username);
+        this.actions = ['getProfile', 'followUser', 'unfollowUser'];
+    }
 
-        this.findElements();
-        this.setEventHandler();
+    init() {
+        this.router = document.querySelector('real-router');
+        this.loginUser = realStorage.retrieve('user');
+        this.userName = this.getAttribute('param');
     }
 
     connectedCallback() {
-        console.log('profile page  connectedCallback()');
+        console.log('profile-page::connectedCallback(): 0:', 0);
 
-        this.render();
+        this.setEvent();
+
+        actionHandler.addListener(this.actions, this);
+        actionHandler.addAction({type: 'getProfile', data: {username: this.userName}});
+    }
+    disconnectedCallback() {
+        console.log('profile-page::disconnectedCallback(): 0:', 0);
+
+        actionHandler.removeListener(this.actions, this);
     }
 
-    findElements() {
+    setEvent() {
+        if (this.loginUser?.user.username === this.userName) {
+            this.shadowRoot.querySelector('#btnEditSettings')
+                .addEventListener('click', this.goEditSettings);
+        } else {
+            this.shadowRoot.querySelector('#btnFollow')
+                .addEventListener('click', this.followUser);
+        }
+    }
+    goEditSettings = (evt) => {
+        evt.preventDefault();
 
+        const realNavbar = document.querySelector('real-navbar');
+        realNavbar.goSettings();
+    }
+    followUser = (evt) => {
+        evt.preventDefault();
+
+        if (!this.loginUser) {
+            this.router.render('login');
+            return;
+        }
+
+        evt.target.classList.contains('active')
+            ? actionHandler.addAction({type: 'unfollowUser', data: {username: this.userName}})
+            : actionHandler.addAction({type: 'followUser', data: {username: this.userName}});
     }
 
-    setEventHandler() {
+    callbackAction(actionType, result) {
+        console.log('profile-page::callbackAction(): actionType:', actionType);
+        console.log('profile-page::callbackAction(): result:', result);
 
+        const cbActions = {
+            getProfile: this.getProfileCallback,
+            followUser: this.followUserCallback,
+            unfollowUser: this.unfollowUserCallback,
+        }
+        cbActions[actionType] && cbActions[actionType](result);
     }
+    getProfileCallback = (result) => {
+        this.shadowRoot.querySelector('img')
+            .src = result.profile.image;
+        this.shadowRoot.querySelector('p')
+            .innerHTML = result.profile.bio;
 
-    render() {
-
+        if (this.loginUser?.user.username === this.userName) {
+            this.shadowRoot.querySelector('#btnEditSettings')
+        } else {
+            if (result.profile.following) {
+                const btn = this.shadowRoot.querySelector('#btnFollow');
+                btn.classList.add('active');
+                btn.innerHTML = `<i class="ion-plus-round"></i>
+                &nbsp; Unfollow ${result.profile.username}`;
+            }
+        }
+    }
+    followUserCallback = (result) => {
+        const btn = this.shadowRoot.querySelector('#btnFollow');
+        btn.classList.toggle('active');
+        btn.innerHTML = `<i class="ion-plus-round"></i>
+                &nbsp; Unfollow ${result.profile.username}`;
+    }
+    unfollowUserCallback = (result) => {
+        const btn = this.shadowRoot.querySelector('#btnFollow');
+        btn.classList.toggle('active');
+        btn.innerHTML = `<i class="ion-plus-round"></i>
+                &nbsp; Follow ${result.profile.username}`;
     }
 }
 

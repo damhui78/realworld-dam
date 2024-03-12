@@ -41,9 +41,18 @@ class RealTab extends HTMLElement {
         this.divArticles = this.shadowRoot.querySelector('#article-preview-list');
         this.pagination = this.shadowRoot.querySelector('real-pagination');
 
+        this.pageName = this.getAttribute('pageName');
+        this.userName = this.getAttribute('userName');
         this.loginUser = realStorage.retrieve('user');
-        const tabs = this.loginUser ?  ['Your Feed', 'Global Feed'] : ['Global Feed'];
-        actionHandler.addAction({type: 'changeTab', data: {tabTitles: tabs, activeTabTitle: 'Global Feed'}, storeType: 'tabTitles'});
+        let activeTabTitle;
+        if (this.pageName === 'profile'){
+            this.tabTitles = ['My Articles', 'Favorited Articles'];
+            activeTabTitle = 'My Articles';
+        } else {
+            this.tabTitles = this.loginUser ?  ['Your Feed', 'Global Feed'] : ['Global Feed'];
+            activeTabTitle = 'Global Feed';
+        }
+        actionHandler.addAction({type: 'changeTab', data: {tabTitles: this.tabTitles, activeTabTitle}});
     }
 
     connectedCallback() {
@@ -88,10 +97,10 @@ class RealTab extends HTMLElement {
                 terms = `tag=${result.activeTabTitle.substring(1)}`;
                 break;
             case 'My Articles':
-                terms = `author=${this.loginUser?.user.username}`;
+                terms = `author=${this.userName}`;
                 break;
             case 'Favorited Articles':
-                terms = `favorited=${this.loginUser?.user.username}`;
+                terms = `favorited=${this.userName}`;
                 break;
             default:
                 terms = '';
@@ -134,10 +143,10 @@ class RealTab extends HTMLElement {
         console.log('real-tab::searchArticlesByTabClick(): evt.target.innerText:', evt.target.innerText);
         console.log('real-tab::searchArticlesByTabClick(): evt.target.dataset.terms:', evt.target.dataset.terms);
 
-        if (evt.target.innerText.startsWith('#') || realStorage.retrieve('tabTitles').find(item => item.startsWith('#'))?.length < 1) {
+        if (evt.target.innerText.startsWith('#') || this.tabTitles.find(item => item.startsWith('#'))?.length < 1) {
             actionHandler.addAction({type: 'changeActiveTab', data: {activeTabTitle: evt.target.innerText}});
         } else {
-            actionHandler.addAction({type: 'changeTab', data: {tabTitles: this.loginUser ? ['Your Feed', 'Global Feed'] : ['Global Feed'], activeTabTitle: evt.target.innerText}, storeType: 'tabTitles'});
+            actionHandler.addAction({type: 'changeTab', data: {tabTitles: this.tabTitles, activeTabTitle: evt.target.innerText}});
         }
     }
 
