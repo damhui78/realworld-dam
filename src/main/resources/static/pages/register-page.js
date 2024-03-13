@@ -1,4 +1,4 @@
-import {realApi} from "../services/real-api.js";
+import {actionHandler} from "../services/action-handler.js";
 
 const style = `<style>
         
@@ -19,7 +19,6 @@ const getTemplate = () => {
                 </p>
         
                 <ul class="error-messages">
-                  <li>That email is already taken</li>
                 </ul>
         
                 <form>
@@ -46,41 +45,61 @@ class RegisterPage extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.shadowRoot.innerHTML = getTemplate();
-
-        this.findElements();
-        this.setEventHandler();
+        this.actions = ['registerUser'];
     }
 
     connectedCallback() {
-        console.log('register page  connectedCallback()')
+        console.log('register-page::connectedCallback(): 0:', 0);
 
-        this.render();
+        this.setEvent();
+
+        actionHandler.addListener(this.actions, this);
+    }
+    disconnectedCallback() {
+        console.log('register-page::disconnectedCallback(): 0:', 0);
+
+        actionHandler.removeListener(this.actions, this);
     }
 
-    findElements() {
-
+    setEvent() {
+        this.shadowRoot.querySelector('a').addEventListener('click', this.goSignin);
+        this.shadowRoot.querySelector('button').addEventListener('click', this.signup);
     }
+    goSignin = (evt) => {
+        evt.preventDefault();
 
-    setEventHandler() {
-        this.shadowRoot.querySelector('button').addEventListener('click', this.clickSignup);
+        const realNavbar = document.querySelector('real-navbar');
+        realNavbar.goLogin();
     }
-
-    clickSignup = async (evt) => {
+    signup = (evt) => {
         evt.preventDefault();
 
         const username = this.shadowRoot.querySelector('#username').value;
         const email = this.shadowRoot.querySelector('#email').value;
         const password = this.shadowRoot.querySelector('#password').value;
         const user = {username, email, password};
-        console.log('clickSighup user : ', user);
+        console.log('register-page::signup(): user:', user);
 
-        await realApi.registerUserApi(user);
-
-        const realNavbar = document.querySelector('real-navbar');
-        realNavbar.render();
+        actionHandler.addAction({type: 'registerUser', data: {user}});
     }
 
-    render() {
+    callbackAction(actionType, result) {
+        console.log('register-page::callbackAction(): actionType:', actionType);
+        console.log('register-page::callbackAction(): result:', result);
+
+        const cbActions = {
+            registerUser: this.registerUserCallback,
+        }
+        cbActions[actionType] && cbActions[actionType](result);
+    }
+    registerUserCallback = (result) => {
+        if (result.errorMessage) {
+
+            return;
+        }
+
+        const realNavbar = document.querySelector('real-navbar');
+        realNavbar.goHome();
     }
 }
 

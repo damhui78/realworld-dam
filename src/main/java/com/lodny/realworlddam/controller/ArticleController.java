@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/articles")
@@ -47,8 +49,10 @@ public class ArticleController {
 
     @JwtSecured
     @DeleteMapping("/{slug}")
-    public void deleteArticle(@PathVariable String slug ,@LoginUser RealWorldUser loginUser) {
+    public ResponseEntity<?> deleteArticle(@PathVariable String slug ,@LoginUser RealWorldUser loginUser) {
         articleService.deleteArticle(slug, loginUser);
+
+        return ResponseEntity.ok(Map.of());
     }
 
     @GetMapping("/{slug}")
@@ -117,11 +121,13 @@ public class ArticleController {
 
     @JwtSecured
     @DeleteMapping("/{slug}/comments/{id}")
-    public void deleteComment(@PathVariable String slug, @PathVariable Long id, @LoginUser RealWorldUser loginUser) {
+    public ResponseEntity<?> deleteComment(@PathVariable String slug, @PathVariable Long id, @LoginUser RealWorldUser loginUser) {
         log.info("deleteComment() : slug = {}", slug);
         log.info("deleteComment() : id = {}", id);
 
         articleService.deleteComment(slug, id, loginUser);
+
+        return ResponseEntity.ok(Map.of());
     }
 
 }

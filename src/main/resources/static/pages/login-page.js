@@ -1,5 +1,4 @@
-import {realApi} from "../services/real-api.js";
-import {realStorage} from "../services/real-storage.js";
+import {actionHandler} from "../services/action-handler.js";
 
 const style = `<style>
         
@@ -20,7 +19,6 @@ const getTemplate = () => {
                 </p>
         
                 <ul class="error-messages">
-                  <li>That email is already taken</li>
                 </ul>
         
                 <form>
@@ -44,39 +42,58 @@ class LoginPage extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.shadowRoot.innerHTML = getTemplate();
-
-        this.findElements();
-        this.setEventHandler();
+        this.actions = ['login'];
     }
 
     connectedCallback() {
-        console.log('login page  connectedCallback()')
+        console.log('login-page::connectedCallback(): 0:', 0);
 
-        this.render();
+        this.setEvent();
+
+        actionHandler.addListener(this.actions, this);
+    }
+    disconnectedCallback() {
+        console.log('profile-page::disconnectedCallback(): 0:', 0);
+
+        actionHandler.removeListener(this.actions, this);
     }
 
-    findElements() {
+    setEvent() {
+        this.shadowRoot.querySelector('a').addEventListener('click', this.goSignup);
+        this.shadowRoot.querySelector('button').addEventListener('click', this.signin);
     }
+    goSignup = (evt) => {
+        evt.preventDefault();
 
-    setEventHandler() {
-        this.shadowRoot.querySelector('button').addEventListener('click', this.clickSignin);
+        const realNavbar = document.querySelector('real-navbar');
+        realNavbar.goSignup();
     }
-
-    clickSignin = async (evt) => {
+    signin = (evt) => {
         evt.preventDefault();
 
         const email = this.shadowRoot.querySelector('#email').value;
         const password = this.shadowRoot.querySelector('#password').value;
         const user = {email, password};
-        const loginUser = await realApi.loginApi(user);
-        console.log('clickSignin loginUser : ', loginUser);
-        realStorage.store('user', loginUser);
+        actionHandler.addAction({type: 'login', data: {user}, storeType: 'user'})
+    }
+
+    callbackAction(actionType, result) {
+        console.log('profile-page::callbackAction(): actionType:', actionType);
+        console.log('profile-page::callbackAction(): result:', result);
+
+        const cbActions = {
+            login: this.loginCallback,
+        }
+        cbActions[actionType] && cbActions[actionType](result);
+    }
+    loginCallback = (result) => {
+        if (result.errorMessage) {
+
+            return;
+        }
 
         const realNavbar = document.querySelector('real-navbar');
         realNavbar.render();
-    }
-
-    render() {
     }
 }
 

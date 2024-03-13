@@ -119,7 +119,7 @@ class RealNavbar extends HTMLElement {
     render() {
         const loginUser = realStorage.retrieve('user');
         console.log('real-navbar::render(): loginUser:', loginUser);
-        this.shadowRoot.innerHTML = loginUser ? getLoginTemplate(loginUser.user.username) : getTemplate();
+        this.shadowRoot.innerHTML = loginUser ? getLoginTemplate(loginUser.username) : getTemplate();
 
         this.findElements();
         this.setEventHandler();
@@ -137,6 +137,12 @@ class RealNavbar extends HTMLElement {
         const loginLink = this.shadowRoot.querySelector('#loginLink');
         this.markCurrentNavigation(loginLink);
         this.router.render('login');
+    }
+
+    goSignup() {
+        const signupLink = this.shadowRoot.querySelector('#signupLink');
+        this.markCurrentNavigation(signupLink);
+        this.router.render('register');
     }
 
     goSettings() {

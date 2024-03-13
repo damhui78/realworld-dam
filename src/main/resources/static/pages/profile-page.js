@@ -55,7 +55,7 @@ class ProfilePage extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.init();
-        this.shadowRoot.innerHTML = getTemplate(this.userName, this.loginUser?.user.username);
+        this.shadowRoot.innerHTML = getTemplate(this.userName, this.loginUser?.username);
         this.actions = ['getProfile', 'followUser', 'unfollowUser'];
     }
 
@@ -80,7 +80,7 @@ class ProfilePage extends HTMLElement {
     }
 
     setEvent() {
-        if (this.loginUser?.user.username === this.userName) {
+        if (this.loginUser?.username === this.userName) {
             this.shadowRoot.querySelector('#btnEditSettings')
                 .addEventListener('click', this.goEditSettings);
         } else {
@@ -124,7 +124,7 @@ class ProfilePage extends HTMLElement {
         this.shadowRoot.querySelector('p')
             .innerHTML = result.profile.bio;
 
-        if (this.loginUser?.user.username === this.userName) {
+        if (this.loginUser?.username === this.userName) {
             this.shadowRoot.querySelector('#btnEditSettings')
         } else {
             if (result.profile.following) {

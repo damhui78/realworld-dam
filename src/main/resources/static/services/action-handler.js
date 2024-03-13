@@ -1,11 +1,13 @@
 import {realApi} from "./real-api.js";
 import {realStorage} from "./real-storage.js";
+import {RealAlert} from "../components/real-alert.js";
 
 const eventQueue = [];
 const listenerMap = new Map();
 
 class ActionHandler {
     constructor() {
+        this.realAlert = document.querySelector('real-alert');
         setInterval(() => this.runAction(), 100);
     }
 
@@ -55,6 +57,11 @@ class ActionHandler {
         if (!action) return;
 
         const result = await this.executeAction(action);
+        console.log('action-handler::runAction(): result:', result);
+
+        if (result.errorMessage) {
+            this.realAlert.open(result.errorMessage);
+        }
 
         this.storeData(action, result);
         this.notifyListener(action.type, result);
@@ -62,6 +69,8 @@ class ActionHandler {
 
     executeAction({type, data}) {
         const actions = {
+            registerUser: this.registerUser,
+            login: this.login,
             changeTab: this.changeTab,
             changeActiveTab: this.changeActiveTab,
             getArticles: this.getArticles,
@@ -78,6 +87,12 @@ class ActionHandler {
             deleteComment: this.deleteComment,
         };
         return actions[type](data);
+    }
+    registerUser(data) {
+        return realApi.registerUserApi(data.user);
+    }
+    login(data) {
+        return realApi.loginApi(data.user);
     }
     changeTab(data) {
         return data;

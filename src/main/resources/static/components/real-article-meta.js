@@ -60,7 +60,7 @@ class RealArticleMeta extends HTMLElement {
         this.article = realStorage.getArticleBySlug(this.slug);
         this.authorName = this.article.author.username;
         this.loginUser = realStorage.retrieve('user');
-        this.isMyArticle = this.authorName === this.loginUser?.user.username;
+        this.isMyArticle = this.authorName === this.loginUser?.username;
     }
 
     connectedCallback() {

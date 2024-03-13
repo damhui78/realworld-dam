@@ -5,6 +5,7 @@ import com.lodny.realworlddam.entity.dto.LoginUserResponse;
 import com.lodny.realworlddam.entity.dto.RegisterUserRequest;
 import com.lodny.realworlddam.entity.dto.UpdateUserRequest;
 import com.lodny.realworlddam.repository.UserRepository;
+import com.lodny.realworlddam.system.RealException;
 import com.lodny.realworlddam.util.JwtProperty;
 import com.lodny.realworlddam.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class UserService {
 
         RealWorldUser realWorldUser = userRepository.findByEmail(registerUserRequest.email());
         if (realWorldUser == null || !registerUserRequest.password().equals(realWorldUser.getPassword()))
-            throw new IllegalArgumentException("invalid email or password");
+            throw new RealException("invalid email or password");
 
         String jwt = jwtUtil.createJwt(realWorldUser.getEmail());
 

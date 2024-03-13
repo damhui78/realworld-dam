@@ -47,7 +47,7 @@ class RealCommentCard extends HTMLElement {
         this.slug = this.getAttribute('slug');
         const id = this.getAttribute('id');
         this.comment = realStorage.getCommentById(id);
-        this.isMyComment = this.comment.author.username === this.loginUser?.user.username;
+        this.isMyComment = this.comment.author.username === this.loginUser?.username;
     }
 
     connectedCallback() {
